@@ -1,4 +1,6 @@
-/* globals Promise */
+/**
+ * @jest-environment jsdom
+ */
 
 var createManager = require('../createManager');
 var createMockKeyEvent = require('./helpers/createMockKeyEvent');
