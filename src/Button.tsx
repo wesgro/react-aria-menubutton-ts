@@ -30,10 +30,8 @@ const AriaMenuButtonButton: React.FC<
   const innerRef = React.useRef<HTMLElement>();
   const [isOpen, setIsOpen] = React.useState(false);
   React.useEffect(() => {
-   
     const managerRef = ambManager.current;
     if (innerRef.current) {
-      
       managerRef.button = {
         element: innerRef.current,
         functions: {
@@ -50,19 +48,16 @@ const AriaMenuButtonButton: React.FC<
       };
     }
     return () => {
-
-       managerRef.button = null;
+      managerRef.button = null;
       managerRef.destroy();
-    }
+    };
   }, [ambManager, setIsOpen, innerRef, isOpen]);
-
-
 
   const managerExists = !!ambManager.current;
 
   const handleKeyDown = (event: React.KeyboardEvent<HTMLButtonElement>) => {
     if (props.disabled) return;
-   
+
     switch (event.key) {
       case "ArrowDown":
         event.preventDefault();
@@ -71,7 +66,7 @@ const AriaMenuButtonButton: React.FC<
         } else {
           ambManager.current?.focusItem(0);
         }
-        
+
         break;
       case "Enter":
       case " ":

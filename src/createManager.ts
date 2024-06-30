@@ -48,7 +48,6 @@ class Manager implements ManagerInterface {
   }
 
   set menu(menu: MenuRef) {
-   
     this._menu = menu;
   }
 
@@ -95,7 +94,6 @@ class Manager implements ManagerInterface {
   }
 
   public addItem(item: { node: HTMLElement; text: string }) {
-    
     this.focusGroup.addMember(item);
   }
 

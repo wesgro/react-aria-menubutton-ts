@@ -47,14 +47,12 @@ const AriaMenuButtonMenuItem: React.FC<
   };
 
   const setRef = (instance: HTMLDivElement) => {
-   
-      innerRef.current = instance;
-      if (typeof forwardedRef === "function") {
-        forwardedRef(instance);
-      } else if (forwardedRef) {
-        forwardedRef.current = instance;
-      }
-    
+    innerRef.current = instance;
+    if (typeof forwardedRef === "function") {
+      forwardedRef(instance);
+    } else if (forwardedRef) {
+      forwardedRef.current = instance;
+    }
   };
 
   const menuItemProps = {

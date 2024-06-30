@@ -97,7 +97,7 @@ export const Wrapper: React.FC<Wrapper> = ({
       }),
     );
     return () => {
-       managerRef.destroy();
+      managerRef.destroy();
     };
   }, [onSelection, onMenuToggle, closeOnSelection, closeOnBlur, id]);
 

@@ -22,7 +22,8 @@ const AriaMenuButtonMenu: React.FC<
   const addTapListener = React.useCallback(() => {
     const handleTap = (event: Event) => {
       if (innerRef.current?.contains(event.target as Node)) return;
-      if (ambManager.current?.button?.element.contains(event.target as Node)) return;
+      if (ambManager.current?.button?.element.contains(event.target as Node))
+        return;
       ambManager.current?.closeMenu();
     };
     const el = innerRef.current;
@@ -30,13 +31,11 @@ const AriaMenuButtonMenu: React.FC<
     const doc = el.ownerDocument;
     if (!doc) return;
     tapListenerRef.current = createTapListener(doc.documentElement, handleTap);
-   
   }, [innerRef, tapListenerRef, ambManager]);
 
   React.useEffect(() => {
     const managerRef = ambManager.current;
     if (innerRef.current) {
-      
       managerRef.menu = {
         element: innerRef.current,
         functions: {
@@ -64,7 +63,7 @@ const AriaMenuButtonMenu: React.FC<
     return () => {
       if (tapListenerRef.current) tapListenerRef.current.remove();
       managerRef.menu = null;
-     managerRef.destroy();
+      managerRef.destroy();
     };
   }, [ambManager, innerRef, setIsOpen, addTapListener, isOpen]);
 
