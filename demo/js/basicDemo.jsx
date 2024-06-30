@@ -1,5 +1,5 @@
 import React from 'react';
-import ReactDOM from 'react-dom';
+import { createRoot } from 'react-dom/client';
 import { Wrapper, Button, Menu, MenuItem } from '../../src';
 
 const words = [
@@ -73,4 +73,9 @@ class DemoOne extends React.Component {
   }
 }
 
-ReactDOM.render(<React.StrictMode><DemoOne /></React.StrictMode>, document.getElementById('demo-one'));
+
+
+
+const container = document.getElementById('demo-one');
+const root = createRoot(container); // createRoot(container!) if you use TypeScript
+root.render(<React.StrictMode><DemoOne /></React.StrictMode>);

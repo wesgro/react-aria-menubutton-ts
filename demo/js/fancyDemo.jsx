@@ -1,5 +1,5 @@
 import React from 'react';
-import ReactDOM from 'react-dom';
+import { createRoot } from 'react-dom/client';
 import {
   Wrapper,
   Button,
@@ -89,7 +89,11 @@ class Fancy extends React.Component {
   }
 }
 
-ReactDOM.render(<React.StrictMode><Fancy /></React.StrictMode>, document.getElementById('demo-fancy'));
+// ReactDOM.render(<React.StrictMode><Fancy /></React.StrictMode>, document.getElementById('demo-fancy'));
+
+const container = document.getElementById('demo-fancy');
+const root = createRoot(container); // createRoot(container!) if you use TypeScript
+root.render(<React.StrictMode><Fancy /></React.StrictMode>);
 
 // Pre-load the initially hidden SVGs
 fancyStuff.forEach(t => {
