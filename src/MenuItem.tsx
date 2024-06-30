@@ -3,7 +3,7 @@ import * as React from "react";
 import type { Manager } from "./types";
 import ManagerContext from "./ManagerContext";
 
-export interface MenuItemProps extends React.HTMLAttributes<HTMLDivElement>{
+export interface MenuItemProps extends React.HTMLAttributes<HTMLDivElement> {
   children: React.ReactNode;
   text: string;
   value: string | number;
@@ -64,7 +64,11 @@ const AriaMenuButtonMenuItem: React.FC<
     ref: setRef,
   };
 
-  return <div {...props} {...menuItemProps}>{children}</div>;
+  return (
+    <div {...props} {...menuItemProps}>
+      {children}
+    </div>
+  );
 };
 
 export const MenuItem = React.forwardRef<HTMLDivElement, MenuItemProps>(

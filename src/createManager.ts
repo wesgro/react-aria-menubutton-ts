@@ -74,7 +74,6 @@ const protoManager: Manager = {
   },
 
   update() {
-    
     this.menu?.setState({ isOpen: this.isOpen ?? false });
     this.button?.setState({ menuOpen: this.isOpen ?? false });
     this?.options?.onMenuToggle &&
@@ -90,14 +89,12 @@ const protoManager: Manager = {
     this.isOpen = true;
     this.update();
     this.focusGroup?.activate();
-    
+
     if (openOptions.focusMenu) {
-     
       // eslint-disable-next-line @typescript-eslint/no-this-alias
       const self = this;
-      
+
       this.moveFocusTimer = setTimeout(function () {
-        
         self.focusItem(0);
       }, 0);
     }
@@ -116,7 +113,7 @@ const protoManager: Manager = {
   toggleMenu(closeOptions, openOptions) {
     closeOptions = closeOptions || {};
     openOptions = openOptions || {};
-    
+
     if (this.isOpen) {
       this.closeMenu(closeOptions);
     } else {

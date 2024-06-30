@@ -1,6 +1,5 @@
 import * as React from "react";
 
-
 import ManagerContext from "./ManagerContext";
 
 import type { Manager } from "./types";
@@ -27,20 +26,17 @@ const AriaMenuButtonButton: React.FC<
     ambManager: React.RefObject<Manager>;
     forwardedRef?: React.ForwardedRef<HTMLButtonElement>;
   }
-> = ({ ambManager, children,forwardedRef, ...props }) => {
+> = ({ ambManager, children, forwardedRef, ...props }) => {
   const innerRef = React.useRef<HTMLElement>();
   const [isOpen, setIsOpen] = React.useState(false);
   React.useEffect(() => {
     if (innerRef.current && ambManager.current) {
-      
       ambManager.current.button = {
         ...innerRef.current,
         focus: () => {
-         
           innerRef.current?.focus();
         },
         setState: (state) => {
-          
           if (ambManager.current) {
             ambManager.current.isOpen = state.menuOpen;
             setIsOpen(state.menuOpen);
@@ -48,7 +44,7 @@ const AriaMenuButtonButton: React.FC<
         },
       };
     }
-    
+
     return () => {
       // eslint-disable-next-line react-hooks/exhaustive-deps
       ambManager.current?.destroy();
@@ -83,7 +79,6 @@ const AriaMenuButtonButton: React.FC<
   };
 
   const handleClick = () => {
-   
     if (props.disabled) return;
     ambManager.current?.toggleMenu({}, { focusMenu: false });
   };
@@ -91,9 +86,9 @@ const AriaMenuButtonButton: React.FC<
   const setRef = (instance: HTMLButtonElement) => {
     innerRef.current = instance;
     if (typeof forwardedRef === "function") {
-     forwardedRef(instance);
+      forwardedRef(instance);
     } else if (forwardedRef) {
-     forwardedRef.current = instance;
+      forwardedRef.current = instance;
     }
   };
 
@@ -111,7 +106,11 @@ const AriaMenuButtonButton: React.FC<
     ref: setRef,
   };
 
-  return <button {...props} {...buttonProps}>{children}</button>;
+  return (
+    <button {...props} {...buttonProps}>
+      {children}
+    </button>
+  );
 };
 
 export const Button = React.forwardRef<

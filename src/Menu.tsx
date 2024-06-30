@@ -4,7 +4,8 @@ import createTapListener from "teeny-tap";
 import type { Manager } from "./types";
 import ManagerContext from "./ManagerContext";
 
-export interface AriaMenuButtonMenuProps extends Omit<React.HTMLAttributes<HTMLDivElement>, 'children'> {
+export interface AriaMenuButtonMenuProps
+  extends Omit<React.HTMLAttributes<HTMLDivElement>, "children"> {
   children: React.ReactNode | ((props: { isOpen: boolean }) => React.ReactNode);
 }
 
@@ -22,7 +23,7 @@ const AriaMenuButtonMenu: React.FC<
     const handleTap = (event: Event) => {
       if (innerRef.current?.contains(event.target as Node)) return;
       // if (ambManager.current?.button?.contains(event.target as Node)) return;
-      
+
       ambManager.current?.closeMenu();
     };
     const el = innerRef.current;
@@ -79,9 +80,6 @@ const AriaMenuButtonMenu: React.FC<
     }
   };
 
-
-
-
   const menuProps = {
     onKeyDown: ambManager.current?.handleMenuKey,
     role: "menu",
@@ -91,7 +89,11 @@ const AriaMenuButtonMenu: React.FC<
 
   return (
     <div {...props} {...menuProps} ref={setRef}>
-      {typeof children === "function" ? children({ isOpen: ambManager.current?.isOpen ?? false }) : ambManager.current?.isOpen ? children : null}
+      {typeof children === "function"
+        ? children({ isOpen: ambManager.current?.isOpen ?? false })
+        : ambManager.current?.isOpen
+          ? children
+          : null}
     </div>
   );
 };

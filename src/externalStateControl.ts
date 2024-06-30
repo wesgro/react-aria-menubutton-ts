@@ -15,7 +15,7 @@ export function unregisterManager(menuId: string) {
 export function openMenu(menuId: string, openOptions: OpenOptions) {
   const manager = registeredManagers[menuId];
   if (!manager) throw new Error("Cannot open " + errorCommon);
-  
+
   manager.openMenu(openOptions);
 }
 

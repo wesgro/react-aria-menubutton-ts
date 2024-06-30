@@ -73,10 +73,10 @@ export const Wrapper: React.FC<Wrapper> = ({
   id,
   ...props
 }) => {
-  const manager = React.useRef<ReturnType<typeof createManager>>()
+  const manager = React.useRef<ReturnType<typeof createManager>>();
   const Tag = tag;
   React.useEffect(() => {
-    if(!manager.current) {
+    if (!manager.current) {
       manager.current = createManager(
         managerOptionsFromProps({
           onSelection,
@@ -85,7 +85,7 @@ export const Wrapper: React.FC<Wrapper> = ({
           closeOnBlur,
           id,
         }),
-      )
+      );
     }
     manager.current.updateOptions(
       managerOptionsFromProps({
