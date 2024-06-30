@@ -49,32 +49,34 @@ const protoManager: Manager = {
   },
 
   focusItem(index) {
-    this.focusGroup.focusNodeAtIndex(index);
+    debugger;
+    this.focusGroup?.focusNodeAtIndex(index);
   },
 
   addItem(item) {
-    this.focusGroup.addMember(item);
+    this.focusGroup?.addMember(item);
   },
 
   clearItems() {
-    this.focusGroup.clearMembers();
+    this.focusGroup?.clearMembers();
   },
 
   handleButtonNonArrowKey(event) {
-    this.focusGroup._handleUnboundKey(event);
+    this.focusGroup?._handleUnboundKey(event);
   },
 
   destroy() {
     this.button = null;
     this.menu = null;
-    this.focusGroup.deactivate();
+    this.focusGroup?.deactivate();
     clearTimeout(this.blurTimer);
     clearTimeout(this.moveFocusTimer);
   },
 
   update() {
-    this.menu?.current?.setState({ isOpen: this.isOpen });
-    this.button?.current?.setState({ menuOpen: this.isOpen });
+    
+    this.menu?.setState({ isOpen: this.isOpen ?? false });
+    this.button?.setState({ menuOpen: this.isOpen ?? false });
     this?.options?.onMenuToggle &&
       this.options.onMenuToggle({ isOpen: this.isOpen! });
   },
@@ -87,10 +89,15 @@ const protoManager: Manager = {
     }
     this.isOpen = true;
     this.update();
-    this.focusGroup.activate();
+    this.focusGroup?.activate();
+    
     if (openOptions.focusMenu) {
+     
+      // eslint-disable-next-line @typescript-eslint/no-this-alias
       const self = this;
+      
       this.moveFocusTimer = setTimeout(function () {
+        
         self.focusItem(0);
       }, 0);
     }
@@ -102,13 +109,14 @@ const protoManager: Manager = {
     this.isOpen = false;
     this.update();
     if (closeOptions.focusButton) {
-      this.button?.current.focus();
+      this.button?.focus();
     }
   },
 
   toggleMenu(closeOptions, openOptions) {
     closeOptions = closeOptions || {};
     openOptions = openOptions || {};
+    
     if (this.isOpen) {
       this.closeMenu(closeOptions);
     } else {
@@ -118,14 +126,15 @@ const protoManager: Manager = {
 };
 
 function handleBlur(this: Manager) {
+  // eslint-disable-next-line @typescript-eslint/no-this-alias
   const self = this;
   self.blurTimer = setTimeout(function () {
     if (!self.button) return;
-    const buttonNode = self.button?.current;
+    const buttonNode = self.button;
     if (!buttonNode) return;
     const activeEl = buttonNode.ownerDocument.activeElement;
     if (buttonNode && activeEl === buttonNode) return;
-    const menuNode = self.menu?.current;
+    const menuNode = self.menu;
     if (menuNode === activeEl) {
       self.focusItem(0);
       return;
@@ -137,14 +146,17 @@ function handleBlur(this: Manager) {
 
 function handleSelection(
   this: Manager,
-  value: any,
+  value: unknown,
   event: React.SyntheticEvent<HTMLElement>,
 ) {
   if (this?.options?.closeOnSelection) this.closeMenu({ focusButton: true });
   if (this?.options?.onSelection) this.options.onSelection(value, event);
 }
 
-function handleMenuKey(this: Manager, event: KeyboardEvent) {
+function handleMenuKey(
+  this: Manager,
+  event: React.KeyboardEvent<HTMLButtonElement>,
+) {
   if (this.isOpen) {
     switch (event.key) {
       case "Escape":
@@ -153,11 +165,11 @@ function handleMenuKey(this: Manager, event: KeyboardEvent) {
         break;
       case "Home":
         event.preventDefault();
-        this.focusGroup.moveFocusToFirst();
+        this.focusGroup?.moveFocusToFirst();
         break;
       case "End":
         event.preventDefault();
-        this.focusGroup.moveFocusToLast();
+        this.focusGroup?.moveFocusToLast();
         break;
     }
   }

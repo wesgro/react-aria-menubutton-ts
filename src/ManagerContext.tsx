@@ -1,6 +1,12 @@
 import * as React from "react";
 import type { Manager } from "./types";
-const AriaMenuButtonManagerContext =
-  React.createContext<null | React.RefObject<Manager>>(null);
+
+type ManagerContext = {
+  managerRef: React.RefObject<Manager>;
+};
+
+const AriaMenuButtonManagerContext = React.createContext<null | ManagerContext>(
+  null,
+);
 
 export default AriaMenuButtonManagerContext;

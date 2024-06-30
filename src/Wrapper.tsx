@@ -1,9 +1,7 @@
-import React, { forwardRef } from "react";
+import * as React from "react";
 
 import createManager from "./createManager";
 import ManagerContext from "./ManagerContext";
-
-import specialAssign from "./specialAssign";
 
 export interface WrapperState {
   isOpen: boolean;
@@ -65,16 +63,44 @@ const managerOptionsFromProps = (props: Wrapper) => {
   };
 };
 
-export const Wrapper: React.FC<Wrapper> = (props) => {
-  const manager = React.useRef(createManager(managerOptionsFromProps(props)));
-  const Tag = props.tag ?? "div";
+export const Wrapper: React.FC<Wrapper> = ({
+  children,
+  tag = "div",
+  onSelection,
+  onMenuToggle,
+  closeOnSelection,
+  closeOnBlur,
+  id,
+  ...props
+}) => {
+  const manager = React.useRef<ReturnType<typeof createManager>>()
+  const Tag = tag;
   React.useEffect(() => {
-    manager.current.updateOptions(managerOptionsFromProps(props));
-  }, [props]);
+    if(!manager.current) {
+      manager.current = createManager(
+        managerOptionsFromProps({
+          onSelection,
+          onMenuToggle,
+          closeOnSelection,
+          closeOnBlur,
+          id,
+        }),
+      )
+    }
+    manager.current.updateOptions(
+      managerOptionsFromProps({
+        onSelection,
+        onMenuToggle,
+        closeOnSelection,
+        closeOnBlur,
+        id,
+      }),
+    );
+  }, [onSelection, onMenuToggle, closeOnSelection, closeOnBlur, id]);
 
   return (
-    <ManagerContext.Provider value={manager}>
-      <Tag {...props}>{props.children}</Tag>
+    <ManagerContext.Provider value={{ managerRef: manager }}>
+      <Tag {...props}>{children}</Tag>
     </ManagerContext.Provider>
   );
 };

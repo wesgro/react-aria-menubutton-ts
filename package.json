@@ -1,20 +1,16 @@
 {
-  "name": "react-aria-menubutton",
-  "version": "7.0.3",
+  "name": "react-aria-menubutton-ts",
+  "version": "1.0.0",
   "description": "A fully accessible and flexible React-powered menu button",
+  "type": "module",
   "main": "dist/index.js",
   "scripts": {
-    "lint": "eslint .",
-    "demo-bundle": "webpack --mode production --config ./webpack-demo.config.js",
-    "demo-watch": "webpack --mode development --config ./webpack-demo.config.js --watch",
-    "start": "npm run demo-watch & http-server demo",
+    "lint": "eslint 'src/**/*.{ts,tsx}'",
+    "start": "vite",
     "jest": "jest",
     "test": "npm run lint && npm run jest",
-    "umd-unminified": "webpack --mode development --config ./webpack-umd.config.js",
-    "umd-minified": "webpack --mode production --config ./webpack-umd.config.js",
-    "umd": "npm run umd-unminified && npm run umd-minified",
-    "format": "prettier --single-quote --write src/**/*.js demo/js/*.js",
-    "build": "babel src -d dist --ignore src/__tests__",
+    "format": "prettier --write ./src",
+    "build": "tsup",
     "prepublishOnly": "npm run umd && npm run build"
   },
   "husky": {
@@ -23,11 +19,11 @@
     }
   },
   "lint-staged": {
-    "*.js": "eslint"
+    "*.{ts,tsx}": "eslint"
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/davidtheclark/react-aria-menubutton.git"
+    "url": "https://github.com/wesgro/react-aria-menubutton-ts.git"
   },
   "author": {
     "name": "David Clark",
@@ -36,9 +32,9 @@
   },
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/davidtheclark/react-aria-menubutton/issues"
+    "url": "https://github.com/wesgro/react-aria-menubutton-ts/issues"
   },
-  "homepage": "https://github.com/davidtheclark/react-aria-menubutton",
+  "homepage": "https://github.com/wesgro/react-aria-menubutton-ts",
   "keywords": [
     "react",
     "reactjs",
@@ -54,22 +50,28 @@
     "teeny-tap": "^0.2.0"
   },
   "peerDependencies": {
-    "react": "^16.14.0 || 17 || 18"
+    "@types/react": "^16.14.0 || 17 || 18",
+    "@types/react-dom": "^16.14.0 || 17 || 18",
+    "react": "^16.14.0 || 17 || 18",
+    "react-dom": "^16.14.0 || 17 || 18"
   },
   "devDependencies": {
     "@testing-library/dom": "^10.2.0",
     "@testing-library/react": "^16.0.0",
     "@types/react": "^18.3.3",
+    "@types/react-dom": "^18.3.0",
     "@typescript-eslint/eslint-plugin": "^7.14.1",
     "@typescript-eslint/parser": "^7.14.1",
     "@vitejs/plugin-react": "^4.3.1",
     "eslint": "^8",
     "eslint-plugin-react": "^7.34.3",
+    "eslint-plugin-react-hooks": "^4.6.2",
     "husky": "^8.0.3",
     "lint-staged": "^13.2.1",
     "prettier": "^3.3.2",
     "react": "^18.0.0",
     "react-dom": "^18.0.0",
+    "tsup": "^8.1.0",
     "typescript": "~5.5.2",
     "vite": "^5.3.2",
     "vitest": "^1.6.0"

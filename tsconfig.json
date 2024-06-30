@@ -1,20 +1,20 @@
 {
-    "compilerOptions": {
-        "baseUrl": "./src",
-      "target": "ESNext",
-      "module": "ESNext",
-      "moduleResolution": "Bundler",
-      "strict": true,
-      "esModuleInterop": true,
-      "forceConsistentCasingInFileNames": true,
-      "skipLibCheck": true,
-      "outDir": "./dist",
-      "declaration": true,
-      "sourceMap": true,
-      "allowJs": true,
-      "jsx": "react-jsx",
-
-    },
-    "include": ["src/**/*"],
-    "exclude": ["node_modules", "dist"]
-  }
+  "compilerOptions": {
+    "skipLibCheck": true,
+    "module": "ESNext",
+    "moduleResolution": "bundler",
+    "target": "ESNext",
+    "isolatedModules": true,
+    "esModuleInterop": true,
+    "noEmit": true,
+    "allowImportingTsExtensions": true,
+    "outDir": "dist",
+    "lib": [ "ESNext", "dom" ],
+    "baseUrl": "./src",
+    "jsx": "react-jsx",
+  },
+  "exclude": [ "node_modules" ],
+  "include": [
+    "src/**/*",
+  ]
+}

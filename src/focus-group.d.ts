@@ -39,6 +39,7 @@ declare module "focus-group" {
     clearMembers(): FocusGroup;
     setMembers(nextMembers: HTMLElement[]): FocusGroup;
     getMembers(): HTMLElement[];
+    _handleUnboundKey(event: React.KeyboardEvent<HTMLButtonElement>): void;
   }
 
   function createFocusGroup(options?: FocusGroupOptions): FocusGroup;

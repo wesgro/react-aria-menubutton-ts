@@ -1,49 +1,17 @@
 import * as React from "react";
-import PropTypes from "prop-types";
+
+
 import ManagerContext from "./ManagerContext";
-import { refType } from "./propTypes";
-import specialAssign from "./specialAssign";
 
-const checkedProps = {
-  ambManager: PropTypes.object.isRequired,
-  children: PropTypes.node.isRequired,
-  disabled: PropTypes.bool,
-  forwardedRef: refType,
-  tag: PropTypes.string,
-};
+import type { Manager } from "./types";
 
-const disabledSupportedTags = () => [
-  "button",
-  "fieldset",
-  "input",
-  "optgroup",
-  "option",
-  "select",
-  "textarea",
-];
-
-/**
- * A simple component to group a `Button`/`Menu`/`MenuItem` set,
- * coordinating their interactions. It should wrap your entire menu button
- * widget.
- * All `Button`, `Menu`, and `MenuItem` components must be nested within a
- * `Wrapper` component.
- * Each wrapper can contain only one `Button`, only one `Menu`, and
- * multiple `MenuItem`s.
- */
-export class Wrapper extends React.Component<WrapperProps<HTMLElement>> {}
-
-export interface ButtonProps<T extends HTMLElement> extends React.HTMLProps<T> {
+export interface ButtonProps<T extends HTMLElement>
+  extends React.HTMLAttributes<T> {
   /**
    * If true, the element is disabled
    * (aria-disabled='true', not in tab order, clicking has no effect).
    */
   disabled?: boolean | undefined;
-
-  /**
-   * The HTML tag for this element. Default: 'div'.
-   */
-  tag?: T["tagName"] | undefined;
 }
 
 /**
@@ -54,95 +22,116 @@ export interface ButtonProps<T extends HTMLElement> extends React.HTMLProps<T> {
  * Each `Button` must be wrapped in a Wrapper, and each Wrapper can wrap only
  * one `Button`.
  */
-
-const AriaMenuButtonButton = (props) => {
-  const ambManager = props.ambManager;
-  const buttonRef = React.useRef();
-
+const AriaMenuButtonButton: React.FC<
+  ButtonProps<HTMLButtonElement> & {
+    ambManager: React.RefObject<Manager>;
+    forwardedRef?: React.ForwardedRef<HTMLButtonElement>;
+  }
+> = ({ ambManager, children,forwardedRef, ...props }) => {
+  const innerRef = React.useRef<HTMLElement>();
+  const [isOpen, setIsOpen] = React.useState(false);
   React.useEffect(() => {
-    ambManager.button = buttonRef.current;
+    if (innerRef.current && ambManager.current) {
+      
+      ambManager.current.button = {
+        ...innerRef.current,
+        focus: () => {
+         
+          innerRef.current?.focus();
+        },
+        setState: (state) => {
+          
+          if (ambManager.current) {
+            ambManager.current.isOpen = state.menuOpen;
+            setIsOpen(state.menuOpen);
+          }
+        },
+      };
+    }
+    
     return () => {
-      ambManager.destroy();
+      // eslint-disable-next-line react-hooks/exhaustive-deps
+      ambManager.current?.destroy();
     };
-  }, [ambManager]);
+  }, [ambManager, setIsOpen]);
 
-  const handleKeyDown = (event) => {
+  const handleKeyDown = (event: React.KeyboardEvent<HTMLButtonElement>) => {
     if (props.disabled) return;
     switch (event.key) {
       case "ArrowDown":
         event.preventDefault();
-        if (!ambManager.isOpen) {
-          ambManager.openMenu();
+        if (!isOpen) {
+          ambManager.current?.openMenu();
         } else {
-          ambManager.focusItem(0);
+          ambManager.current?.focusItem(0);
         }
         break;
       case "Enter":
       case " ":
         event.preventDefault();
-        ambManager.toggleMenu();
+        ambManager.current?.toggleMenu();
         break;
       case "Escape":
-        ambManager.handleMenuKey(event);
+        if (ambManager.current?.handleMenuKey) {
+          ambManager.current.handleMenuKey(event);
+        }
         break;
       default:
         // (Potential) letter keys
-        ambManager.handleButtonNonArrowKey(event);
+        ambManager.current?.handleButtonNonArrowKey(event);
     }
   };
 
   const handleClick = () => {
+   
     if (props.disabled) return;
-    props.ambManager.toggleMenu({}, { focusMenu: false });
+    ambManager.current?.toggleMenu({}, { focusMenu: false });
   };
 
-  const setRef = (instance) => {
-    buttonRef.current = instance;
-    if (typeof props.forwardedRef === "function") {
-      props.forwardedRef(instance);
-    } else if (props.forwardedRef) {
-      props.forwardedRef.current = instance;
+  const setRef = (instance: HTMLButtonElement) => {
+    innerRef.current = instance;
+    if (typeof forwardedRef === "function") {
+     forwardedRef(instance);
+    } else if (forwardedRef) {
+     forwardedRef.current = instance;
     }
   };
 
   const buttonProps = {
     role: "button",
-    tabIndex: props.disabled ? "" : "0",
+    tabIndex: props.disabled ? -1 : 0,
     "aria-haspopup": true,
-    "aria-expanded": ambManager.isOpen,
+    "aria-expanded": isOpen,
     "aria-disabled": props.disabled,
     onKeyDown: handleKeyDown,
     onClick: handleClick,
-    onBlur: ambManager.options.closeOnBlur ? ambManager.handleBlur : undefined,
+    onBlur: ambManager?.current?.options?.closeOnBlur
+      ? ambManager.current?.handleBlur
+      : undefined,
     ref: setRef,
   };
 
-  const reserved = {};
-  Object.assign(reserved, checkedProps);
-  if (disabledSupportedTags().indexOf(props.tag) >= 0) {
-    delete reserved.disabled;
-  }
-  Object.assign(buttonProps, props, reserved);
-
-  return <props.tag {...buttonProps}>{props.children}</props.tag>;
+  return <button {...props} {...buttonProps}>{children}</button>;
 };
 
-export const ForwardRefButton: React.ForwardRefExoticComponent<
+export const Button = React.forwardRef<
+  HTMLButtonElement,
   ButtonProps<HTMLElement>
-> = React.forwardRef((props, ref) => (
-  <ManagerContext.Consumer>
-    {(ambManager) => {
-      const buttonProps = { ambManager, forwardedRef: ref };
-      specialAssign(buttonProps, props, {
-        ambManager: checkedProps.ambManager,
-        children: checkedProps.children,
-        forwardedRef: checkedProps.forwardedRef,
-      });
-      return (
-        <AriaMenuButtonButton {...buttonProps}>
-          {props.children}
-        </AriaMenuButtonButton>
-      );
-    }}
-  </ManagerContext.Consumer>
-));
+>(({ children, ...props }, ref) => {
+  const managerCtx = React.useContext(ManagerContext);
+  if (!managerCtx || !managerCtx.managerRef) {
+    throw new Error(
+      "ManagerContext not found, `<Button/>` must be used inside of a `<Wrapper/>` component",
+    );
+  }
+
+  return (
+    <AriaMenuButtonButton
+      ambManager={managerCtx.managerRef}
+      forwardedRef={ref}
+      {...props}
+    >
+      {children}
+    </AriaMenuButtonButton>
+  );
+});
