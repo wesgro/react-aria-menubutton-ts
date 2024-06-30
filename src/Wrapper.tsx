@@ -73,21 +73,21 @@ export const Wrapper: React.FC<Wrapper> = ({
   id,
   ...props
 }) => {
-  const manager = React.useRef<ReturnType<typeof createManager>>();
+  const manager = React.useRef<ReturnType<typeof createManager>>(
+    createManager(
+      managerOptionsFromProps({
+        onSelection,
+        onMenuToggle,
+        closeOnSelection,
+        closeOnBlur,
+        id,
+      }),
+    ),
+  );
   const Tag = tag;
   React.useEffect(() => {
-    if (!manager.current) {
-      manager.current = createManager(
-        managerOptionsFromProps({
-          onSelection,
-          onMenuToggle,
-          closeOnSelection,
-          closeOnBlur,
-          id,
-        }),
-      );
-    }
-    manager.current.updateOptions(
+    const managerRef = manager.current;
+    managerRef.updateOptions(
       managerOptionsFromProps({
         onSelection,
         onMenuToggle,
@@ -96,6 +96,9 @@ export const Wrapper: React.FC<Wrapper> = ({
         id,
       }),
     );
+    return () => {
+       managerRef.destroy();
+    };
   }, [onSelection, onMenuToggle, closeOnSelection, closeOnBlur, id]);
 
   return (

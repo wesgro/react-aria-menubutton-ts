@@ -11,6 +11,7 @@
     "test": "npm run lint && npm run jest",
     "format": "prettier --write ./src",
     "build": "tsup",
+    "typecheck": "tsc --noEmit",
     "prepublishOnly": "npm run umd && npm run build"
   },
   "husky": {

@@ -24,7 +24,7 @@ const AriaMenuButtonMenuItem: React.FC<
         text: text,
       });
     }
-  }, [ambManager, text]);
+  }, [ambManager, text, innerRef]);
 
   const handleKeyDown = (event: React.KeyboardEvent<HTMLDivElement>) => {
     if (event.key !== "Enter" && event.key !== " ") return;
@@ -40,20 +40,21 @@ const AriaMenuButtonMenuItem: React.FC<
   ) => {
     // If there's no value, we'll send the child
     const selectedValue = typeof value !== "undefined" ? value : children;
+
     if (ambManager.current?.handleSelection) {
       ambManager.current.handleSelection(selectedValue, event);
     }
   };
 
   const setRef = (instance: HTMLDivElement) => {
-    if (innerRef.current) {
+   
       innerRef.current = instance;
       if (typeof forwardedRef === "function") {
         forwardedRef(instance);
       } else if (forwardedRef) {
         forwardedRef.current = instance;
       }
-    }
+    
   };
 
   const menuItemProps = {

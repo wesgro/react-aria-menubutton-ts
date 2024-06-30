@@ -1,86 +1,126 @@
 import createFocusGroup from "focus-group";
-import { type Manager, type ManagerOptions } from "./types";
 import * as externalStateControl from "./externalStateControl";
+import {
+  ButtonRef,
+  MenuRef,
+  Manager as ManagerInterface,
+  ManagerOptions,
+} from "./types";
 
-const focusGroupOptions = {
-  wrap: true,
-  stringSearch: true,
-};
+class Manager implements ManagerInterface {
+  private focusGroup: ReturnType<typeof createFocusGroup>;
+  private _button: ButtonRef = null;
+  private _menu: MenuRef = null;
+  private _isOpen: boolean = false;
+  private _options?: ManagerOptions;
+  private blurTimer: number;
+  private moveFocusTimer: number;
 
-const protoManager: Manager = {
-  init(options) {
+  constructor(options: ManagerOptions) {
+    this.init(options);
+  }
+
+  private init(options: ManagerOptions) {
     this.updateOptions(options);
 
-    this.handleBlur = handleBlur.bind(this);
-    this.handleSelection = handleSelection.bind(this);
-    this.handleMenuKey = handleMenuKey.bind(this);
+    this.handleBlur = this.handleBlur.bind(this);
+    this.handleSelection = this.handleSelection.bind(this);
+    this.handleMenuKey = this.handleMenuKey.bind(this);
 
-    // "With focus on the drop-down menu, the Up and Down Arrow
-    // keys move focus within the menu items, "wrapping" at the top and bottom."
-    // "Typing a letter (printable character) key moves focus to the next
-    // instance of a visible node whose title begins with that printable letter."
-    //
-    // All of the above is handled by focus-group.
-    this.focusGroup = createFocusGroup(focusGroupOptions);
+    this.focusGroup = createFocusGroup({
+      wrap: true,
+      stringSearch: true,
+    });
+  }
 
-    // These component references are added when the relevant components mount
-    this.button = null;
-    this.menu = null;
+  get button() {
+    if (!this._button) throw new Error("Button not set");
+    return this._button;
+  }
 
-    // State trackers
-    this.isOpen = false;
-  },
+  set button(button: ButtonRef) {
+    this._button = button;
+  }
 
-  updateOptions(options) {
+  get menu() {
+    if (!this._menu) throw new Error("Menu not set");
+    return this._menu;
+  }
+
+  set menu(menu: MenuRef) {
+   
+    this._menu = menu;
+  }
+
+  get isOpen() {
+    return this._isOpen;
+  }
+
+  set isOpen(isOpen: boolean) {
+    this._isOpen = isOpen;
+  }
+
+  get options() {
+    return this._options;
+  }
+
+  set options(options: ManagerOptions) {
+    this._options = options;
+  }
+
+  public updateOptions(options: ManagerOptions) {
     const oldOptions = this.options;
+
     this.options = options || this.options || {};
+
     if (typeof this.options.closeOnSelection === "undefined") {
       this.options.closeOnSelection = true;
     }
+
     if (typeof this.options.closeOnBlur === "undefined") {
       this.options.closeOnBlur = true;
     }
+
     if (this.options.id) {
       externalStateControl.registerManager(this.options.id, this);
     }
+
     if (oldOptions && oldOptions.id && oldOptions.id !== this.options.id) {
       externalStateControl.unregisterManager(this.options.id);
     }
-  },
+  }
 
-  focusItem(index) {
-    debugger;
-    this.focusGroup?.focusNodeAtIndex(index);
-  },
+  public focusItem(index: number) {
+    this.focusGroup.focusNodeAtIndex(index);
+  }
 
-  addItem(item) {
-    this.focusGroup?.addMember(item);
-  },
+  public addItem(item: { node: HTMLElement; text: string }) {
+    
+    this.focusGroup.addMember(item);
+  }
 
-  clearItems() {
-    this.focusGroup?.clearMembers();
-  },
+  public clearItems() {
+    this.focusGroup.clearMembers();
+  }
 
-  handleButtonNonArrowKey(event) {
-    this.focusGroup?._handleUnboundKey(event);
-  },
+  public handleButtonNonArrowKey(
+    event: React.KeyboardEvent<HTMLButtonElement>,
+  ) {
+    this.focusGroup._handleUnboundKey(event);
+  }
 
-  destroy() {
-    this.button = null;
-    this.menu = null;
-    this.focusGroup?.deactivate();
+  public destroy() {
     clearTimeout(this.blurTimer);
     clearTimeout(this.moveFocusTimer);
-  },
+  }
 
-  update() {
-    this.menu?.setState({ isOpen: this.isOpen ?? false });
-    this.button?.setState({ menuOpen: this.isOpen ?? false });
-    this?.options?.onMenuToggle &&
-      this.options.onMenuToggle({ isOpen: this.isOpen! });
-  },
+  public update() {
+    this.menu.functions.setState({ isOpen: this.isOpen });
+    this.button.functions.setState({ menuOpen: this.isOpen });
+    this.options.onMenuToggle?.({ isOpen: this.isOpen });
+  }
 
-  openMenu(openOptions) {
+  public openMenu(openOptions?: { focusMenu?: boolean }) {
     if (this.isOpen) return;
     openOptions = openOptions || {};
     if (openOptions.focusMenu === undefined) {
@@ -88,92 +128,83 @@ const protoManager: Manager = {
     }
     this.isOpen = true;
     this.update();
-    this.focusGroup?.activate();
-
+    this.focusGroup.activate();
     if (openOptions.focusMenu) {
-      // eslint-disable-next-line @typescript-eslint/no-this-alias
-      const self = this;
-
-      this.moveFocusTimer = setTimeout(function () {
-        self.focusItem(0);
+      this.moveFocusTimer = setTimeout(() => {
+        this.focusItem(0);
       }, 0);
     }
-  },
+  }
 
-  closeMenu(closeOptions) {
+  public closeMenu(closeOptions?: { focusButton?: boolean }) {
     if (!this.isOpen) return;
     closeOptions = closeOptions || {};
     this.isOpen = false;
     this.update();
+    this.focusGroup.deactivate();
     if (closeOptions.focusButton) {
-      this.button?.focus();
+      this.button.functions.focus();
     }
-  },
+  }
 
-  toggleMenu(closeOptions, openOptions) {
+  public toggleMenu(
+    closeOptions?: { focusButton?: boolean },
+    openOptions?: { focusMenu?: boolean },
+  ) {
     closeOptions = closeOptions || {};
     openOptions = openOptions || {};
-
     if (this.isOpen) {
       this.closeMenu(closeOptions);
     } else {
       this.openMenu(openOptions);
     }
-  },
-};
+  }
 
-function handleBlur(this: Manager) {
-  // eslint-disable-next-line @typescript-eslint/no-this-alias
-  const self = this;
-  self.blurTimer = setTimeout(function () {
-    if (!self.button) return;
-    const buttonNode = self.button;
-    if (!buttonNode) return;
-    const activeEl = buttonNode.ownerDocument.activeElement;
-    if (buttonNode && activeEl === buttonNode) return;
-    const menuNode = self.menu;
-    if (menuNode === activeEl) {
-      self.focusItem(0);
-      return;
-    }
-    if (menuNode && menuNode.contains(activeEl)) return;
-    if (self.isOpen) self.closeMenu({ focusButton: false });
-  }, 0);
-}
+  public handleBlur() {
+    this.blurTimer = setTimeout(() => {
+      if (!this.button) return;
+      const buttonNode = this.button.element;
+      if (!buttonNode) return;
+      const activeEl = buttonNode.ownerDocument.activeElement;
+      if (buttonNode && activeEl === buttonNode) return;
+      const menuNode = this.menu.element;
+      if (menuNode === activeEl) {
+        this.focusItem(0);
+        return;
+      }
+      if (menuNode && menuNode.contains(activeEl)) return;
+      if (this.isOpen) this.closeMenu({ focusButton: false });
+    }, 0);
+  }
 
-function handleSelection(
-  this: Manager,
-  value: unknown,
-  event: React.SyntheticEvent<HTMLElement>,
-) {
-  if (this?.options?.closeOnSelection) this.closeMenu({ focusButton: true });
-  if (this?.options?.onSelection) this.options.onSelection(value, event);
-}
+  public handleSelection(
+    value: unknown,
+    event: React.SyntheticEvent<HTMLElement>,
+  ) {
+    if (this.options.closeOnSelection) this.closeMenu({ focusButton: true });
+    if (this.options.onSelection) this.options.onSelection(value, event);
+  }
 
-function handleMenuKey(
-  this: Manager,
-  event: React.KeyboardEvent<HTMLButtonElement>,
-) {
-  if (this.isOpen) {
-    switch (event.key) {
-      case "Escape":
-        event.preventDefault();
-        this.closeMenu({ focusButton: true });
-        break;
-      case "Home":
-        event.preventDefault();
-        this.focusGroup?.moveFocusToFirst();
-        break;
-      case "End":
-        event.preventDefault();
-        this.focusGroup?.moveFocusToLast();
-        break;
+  public handleMenuKey(event: React.KeyboardEvent<HTMLElement>) {
+    if (this.isOpen) {
+      switch (event.key) {
+        case "Escape":
+          event.preventDefault();
+          this.closeMenu({ focusButton: true });
+          break;
+        case "Home":
+          event.preventDefault();
+          this.focusGroup.moveFocusToFirst();
+          break;
+        case "End":
+          event.preventDefault();
+          this.focusGroup.moveFocusToLast();
+          break;
+      }
     }
   }
 }
 
-export default function createManager(options: ManagerOptions): Manager {
-  const newManager = Object.create(protoManager);
-  newManager.init(options);
-  return newManager;
+export default function createManager(options: ManagerOptions) {
+  return new Manager(options);
 }

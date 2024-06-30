@@ -22,8 +22,7 @@ const AriaMenuButtonMenu: React.FC<
   const addTapListener = React.useCallback(() => {
     const handleTap = (event: Event) => {
       if (innerRef.current?.contains(event.target as Node)) return;
-      // if (ambManager.current?.button?.contains(event.target as Node)) return;
-
+      if (ambManager.current?.button?.element.contains(event.target as Node)) return;
       ambManager.current?.closeMenu();
     };
     const el = innerRef.current;
@@ -31,20 +30,25 @@ const AriaMenuButtonMenu: React.FC<
     const doc = el.ownerDocument;
     if (!doc) return;
     tapListenerRef.current = createTapListener(doc.documentElement, handleTap);
+   
   }, [innerRef, tapListenerRef, ambManager]);
 
   React.useEffect(() => {
-    if (innerRef.current && ambManager.current) {
-      ambManager.current.menu = {
-        ...innerRef.current,
-        setState: (state) => {
-          if (ambManager.current) {
-            ambManager.current.isOpen = state.isOpen;
-            setIsOpen(state.isOpen);
-          }
+    const managerRef = ambManager.current;
+    if (innerRef.current) {
+      
+      managerRef.menu = {
+        element: innerRef.current,
+        functions: {
+          setState: (state) => {
+            if (ambManager.current) {
+              ambManager.current.isOpen = state.isOpen;
+              setIsOpen(state.isOpen);
+            }
+          },
         },
       };
-      if (!ambManager.current?.options?.closeOnBlur) return;
+      if (!managerRef?.options?.closeOnBlur) return;
       if (isOpen && !tapListenerRef.current) {
         addTapListener();
       } else if (!isOpen && tapListenerRef.current) {
@@ -59,8 +63,8 @@ const AriaMenuButtonMenu: React.FC<
     }
     return () => {
       if (tapListenerRef.current) tapListenerRef.current.remove();
-      // eslint-disable-next-line react-hooks/exhaustive-deps
-      ambManager.current?.destroy();
+      managerRef.menu = null;
+     managerRef.destroy();
     };
   }, [ambManager, innerRef, setIsOpen, addTapListener, isOpen]);
 

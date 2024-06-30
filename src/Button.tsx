@@ -30,29 +30,39 @@ const AriaMenuButtonButton: React.FC<
   const innerRef = React.useRef<HTMLElement>();
   const [isOpen, setIsOpen] = React.useState(false);
   React.useEffect(() => {
-    if (innerRef.current && ambManager.current) {
-      ambManager.current.button = {
-        ...innerRef.current,
-        focus: () => {
-          innerRef.current?.focus();
-        },
-        setState: (state) => {
-          if (ambManager.current) {
-            ambManager.current.isOpen = state.menuOpen;
-            setIsOpen(state.menuOpen);
-          }
+   
+    const managerRef = ambManager.current;
+    if (innerRef.current) {
+      
+      managerRef.button = {
+        element: innerRef.current,
+        functions: {
+          focus: () => {
+            innerRef.current?.focus();
+          },
+          setState: (state) => {
+            if (managerRef) {
+              managerRef.isOpen = state.menuOpen;
+              setIsOpen(state.menuOpen);
+            }
+          },
         },
       };
     }
-
     return () => {
-      // eslint-disable-next-line react-hooks/exhaustive-deps
-      ambManager.current?.destroy();
-    };
-  }, [ambManager, setIsOpen]);
+
+       managerRef.button = null;
+      managerRef.destroy();
+    }
+  }, [ambManager, setIsOpen, innerRef, isOpen]);
+
+
+
+  const managerExists = !!ambManager.current;
 
   const handleKeyDown = (event: React.KeyboardEvent<HTMLButtonElement>) => {
     if (props.disabled) return;
+   
     switch (event.key) {
       case "ArrowDown":
         event.preventDefault();
@@ -61,6 +71,7 @@ const AriaMenuButtonButton: React.FC<
         } else {
           ambManager.current?.focusItem(0);
         }
+        
         break;
       case "Enter":
       case " ":
@@ -80,7 +91,7 @@ const AriaMenuButtonButton: React.FC<
 
   const handleClick = () => {
     if (props.disabled) return;
-    ambManager.current?.toggleMenu({}, { focusMenu: false });
+    ambManager.current.toggleMenu({}, { focusMenu: false });
   };
 
   const setRef = (instance: HTMLButtonElement) => {
@@ -100,9 +111,10 @@ const AriaMenuButtonButton: React.FC<
     "aria-disabled": props.disabled,
     onKeyDown: handleKeyDown,
     onClick: handleClick,
-    onBlur: ambManager?.current?.options?.closeOnBlur
-      ? ambManager.current?.handleBlur
-      : undefined,
+    onBlur:
+      managerExists && ambManager.current.options.closeOnBlur
+        ? ambManager.current.handleBlur
+        : undefined,
     ref: setRef,
   };
 
