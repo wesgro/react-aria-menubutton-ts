@@ -1,5 +1,5 @@
 import * as React from "react";
-
+import { flushSync } from "react-dom";
 import ManagerContext from "./ManagerContext";
 
 import type { Manager } from "./types";
@@ -39,48 +39,49 @@ const AriaMenuButtonButton: React.FC<
             innerRef.current?.focus();
           },
           setState: (state) => {
-            if (managerRef) {
-              managerRef.isOpen = state.menuOpen;
-              setIsOpen(state.menuOpen);
-            }
+            flushSync(() => {
+              if (managerRef) {
+                managerRef.isOpen = state.menuOpen;
+                setIsOpen(state.menuOpen);
+              }
+            });
           },
         },
       };
     }
     return () => {
-      managerRef.button = null;
       managerRef.destroy();
     };
   }, [ambManager, setIsOpen, innerRef, isOpen]);
 
-  const managerExists = !!ambManager.current;
-
   const handleKeyDown = (event: React.KeyboardEvent<HTMLButtonElement>) => {
     if (props.disabled) return;
 
+    const Manager = ambManager.current;
     switch (event.key) {
       case "ArrowDown":
         event.preventDefault();
+        console.log("ARROW DOWWN");
         if (!isOpen) {
-          ambManager.current?.openMenu();
+          Manager?.openMenu();
         } else {
-          ambManager.current?.focusItem(0);
+          Manager?.focusItem(0);
         }
 
         break;
       case "Enter":
       case " ":
         event.preventDefault();
-        ambManager.current?.toggleMenu();
+        Manager?.toggleMenu();
         break;
       case "Escape":
-        if (ambManager.current?.handleMenuKey) {
-          ambManager.current.handleMenuKey(event);
+        if (Manager?.handleMenuKey) {
+          Manager.handleMenuKey(event);
         }
         break;
       default:
         // (Potential) letter keys
-        ambManager.current?.handleButtonNonArrowKey(event);
+        Manager?.handleButtonNonArrowKey(event);
     }
   };
 
@@ -106,10 +107,14 @@ const AriaMenuButtonButton: React.FC<
     "aria-disabled": props.disabled,
     onKeyDown: handleKeyDown,
     onClick: handleClick,
-    onBlur:
-      managerExists && ambManager.current.options.closeOnBlur
-        ? ambManager.current.handleBlur
-        : undefined,
+    onBlur: (e) => {
+      if (ambManager.current?.options?.closeOnBlur) {
+        ambManager.current?.handleBlur();
+      }
+      if (props.onBlur) {
+        props.onBlur(e);
+      }
+    },
     ref: setRef,
   };
 

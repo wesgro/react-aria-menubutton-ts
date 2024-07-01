@@ -27,7 +27,6 @@ class Manager implements ManagerInterface {
     this.addItem = this.addItem.bind(this);
     this.focusItem = this.focusItem.bind(this);
     this.handleButtonNonArrowKey = this.handleButtonNonArrowKey.bind(this);
-    this.destroy = this.destroy.bind(this);
     this.update = this.update.bind(this);
     this.openMenu = this.openMenu.bind(this);
     this.closeMenu = this.closeMenu.bind(this);
@@ -110,6 +109,10 @@ class Manager implements ManagerInterface {
     this.focusGroup.addMember(item);
   }
 
+  public removeItem(node: HTMLElement | number) {
+    this.focusGroup.removeMember(node);
+  }
+
   public clearItems() {
     this.focusGroup.clearMembers();
   }
@@ -149,6 +152,7 @@ class Manager implements ManagerInterface {
 
   public closeMenu(closeOptions?: { focusButton?: boolean }) {
     if (!this.isOpen) return;
+
     closeOptions = closeOptions || {};
     this._isOpen = false;
     this.update();
@@ -172,6 +176,7 @@ class Manager implements ManagerInterface {
   }
 
   public handleBlur() {
+    if (this.options.closeOnBlur === false) return;
     this.blurTimer = setTimeout(() => {
       if (!this.button) return;
       const buttonNode = this.button.element;

@@ -1,5 +1,6 @@
 /* eslint-disable react/display-name */
 import * as React from "react";
+
 import type { Manager } from "./types";
 import ManagerContext from "./ManagerContext";
 
@@ -18,12 +19,19 @@ const AriaMenuButtonMenuItem: React.FC<
   const innerRef = React.useRef<HTMLDivElement>();
 
   React.useEffect(() => {
-    if (innerRef.current) {
-      ambManager.current?.addItem({
-        node: innerRef.current,
-        text: text,
-      });
+    if (!innerRef.current) {
+      return;
     }
+    const el = innerRef.current;
+    const manager = ambManager.current;
+    manager.addItem({
+      node: el,
+      text: text,
+    });
+
+    return () => {
+      manager.removeItem(el);
+    };
   }, [ambManager, text, innerRef]);
 
   const handleKeyDown = (event: React.KeyboardEvent<HTMLDivElement>) => {

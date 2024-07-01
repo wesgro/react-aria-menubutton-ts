@@ -24,9 +24,10 @@ export type MenuRef = null | {
 export interface Manager {
   focusItem(index: number): void;
   addItem({ node, text }: { node: HTMLElement; text: string }): void;
+  removeItem(node: HTMLElement | number): void;
   clearItems(): void;
-  handleButtonNonArrowKey(event: React.KeyboardEvent<HTMLButtonElement>): void;
   destroy(): void;
+  handleButtonNonArrowKey(event: React.KeyboardEvent<HTMLButtonElement>): void;
   update(): void;
   openMenu(openOptions?: OpenOptions): void;
   closeMenu(closeOptions?: CloseOptions): void;

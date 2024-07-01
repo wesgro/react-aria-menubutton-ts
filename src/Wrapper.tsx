@@ -38,7 +38,7 @@ export interface WrapperProps<T extends HTMLElement>
 
   tag?: "div" | "span";
 
-  id: string;
+  id?: string;
 }
 
 /**

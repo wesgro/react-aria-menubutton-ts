@@ -1,5 +1,5 @@
 import * as React from "react";
-
+import { flushSync } from "react-dom";
 import createTapListener from "teeny-tap";
 import type { Manager } from "./types";
 import ManagerContext from "./ManagerContext";
@@ -19,60 +19,58 @@ const AriaMenuButtonMenu: React.FC<
   const tapListenerRef = React.useRef<ReturnType<typeof createTapListener>>();
   const [isOpen, setIsOpen] = React.useState(false);
 
-  const addTapListener = React.useCallback(() => {
-    const handleTap = (event: Event) => {
-      if (innerRef.current?.contains(event.target as Node)) return;
-      if (ambManager.current?.button?.element.contains(event.target as Node))
-        return;
-      ambManager.current?.closeMenu();
-    };
-    const el = innerRef.current;
-    if (!el) return;
-    const doc = el.ownerDocument;
-    if (!doc) return;
-    tapListenerRef.current = createTapListener(doc.documentElement, handleTap);
-  }, [innerRef, tapListenerRef, ambManager]);
-
   React.useEffect(() => {
-    const managerRef = ambManager.current;
-    if (innerRef.current) {
-      managerRef.menu = {
-        element: innerRef.current,
-        functions: {
-          setState: (state) => {
-            if (ambManager.current) {
-              ambManager.current.isOpen = state.isOpen;
+    if (!innerRef.current) {
+      return;
+    }
+    const Manager = ambManager.current;
+    const tapListener = tapListenerRef.current;
+    const addTapListener = () => {
+      const handleTap = (event: Event) => {
+        if (innerRef.current?.contains(event.target as Node)) return;
+        if (Manager?.button?.element.contains(event.target as Node)) return;
+        Manager?.closeMenu();
+      };
+      const el = innerRef.current;
+      if (!el) return;
+      const doc = el.ownerDocument;
+      if (!doc) return;
+      tapListenerRef.current = createTapListener(
+        doc.documentElement,
+        handleTap,
+      );
+    };
+
+    Manager.menu = {
+      element: innerRef.current,
+      functions: {
+        setState: (state) => {
+          flushSync(() => {
+            if (Manager) {
+              Manager.isOpen = state.isOpen;
               setIsOpen(state.isOpen);
             }
-          },
+          });
         },
-      };
-      if (!managerRef?.options?.closeOnBlur) return;
-      if (isOpen && !tapListenerRef.current) {
-        addTapListener();
-      } else if (!isOpen && tapListenerRef.current) {
-        tapListenerRef.current.remove();
-      }
-
-      if (!isOpen) {
-        // Clear the ambManager's items, so they
-        // can be reloaded next time this menu opens
-        ambManager.current?.clearItems();
-      }
+      },
+    };
+    if (!Manager?.options?.closeOnBlur) return;
+    if (isOpen && !tapListener) {
+      addTapListener();
+    } else if (!isOpen && tapListener) {
+      tapListener.remove();
     }
-    return () => {
-      if (tapListenerRef.current) tapListenerRef.current.remove();
-      managerRef.menu = null;
-      managerRef.destroy();
-    };
-  }, [ambManager, innerRef, setIsOpen, addTapListener, isOpen]);
 
-  React.useEffect(() => {
-    addTapListener();
+    if (!isOpen) {
+      // Clear the ambManager's items, so they
+      // can be reloaded next time this menu opens
+      Manager?.clearItems();
+    }
+
     return () => {
-      tapListenerRef.current?.remove();
+      if (tapListener) tapListener.remove();
     };
-  }, [tapListenerRef, addTapListener]);
+  }, [ambManager, innerRef, setIsOpen, isOpen]);
 
   const setRef = (instance: HTMLDivElement) => {
     innerRef.current = instance;
@@ -85,9 +83,16 @@ const AriaMenuButtonMenu: React.FC<
 
   const menuProps = {
     onKeyDown: ambManager.current?.handleMenuKey,
-    role: "menu",
+    role: isOpen ? "menu" : "presentation",
     tabIndex: -1,
-    onBlur: ambManager.current?.handleBlur,
+    onBlur: (e) => {
+      if (ambManager.current?.options?.closeOnBlur) {
+        ambManager.current?.handleBlur();
+      }
+      if (props.onBlur) {
+        props.onBlur(e);
+      }
+    },
   };
 
   return (
