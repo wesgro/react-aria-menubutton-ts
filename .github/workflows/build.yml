@@ -52,5 +52,8 @@ jobs:
       - name: Typecheck
         run: pnpm run typecheck
 
+      - name: Typecheck package
+        run: pnpm run typecheck:package
+
       - name: Build dist
         run: pnpm run build

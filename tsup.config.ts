@@ -5,8 +5,8 @@ export default defineConfig({
   splitting: true,
   sourcemap: true,
   clean: true,
-  format: ['esm'],
+  format: ['esm', 'cjs'],
   external: [...Object.keys(packageJson.dependencies), ...Object.keys(packageJson.peerDependencies)],
-    dts: true,
-    treeshake: true,
+  dts: true,
+  treeshake: true,
 })
