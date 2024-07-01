@@ -61,7 +61,7 @@ const AriaMenuButtonButton: React.FC<
     switch (event.key) {
       case "ArrowDown":
         event.preventDefault();
-        console.log("ARROW DOWWN");
+        
         if (!isOpen) {
           Manager?.openMenu();
         } else {
