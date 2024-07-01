@@ -21,11 +21,20 @@ class Manager implements ManagerInterface {
   }
 
   private init(options: ManagerOptions) {
-    this.updateOptions(options);
-
     this.handleBlur = this.handleBlur.bind(this);
     this.handleSelection = this.handleSelection.bind(this);
     this.handleMenuKey = this.handleMenuKey.bind(this);
+    this.addItem = this.addItem.bind(this);
+    this.focusItem = this.focusItem.bind(this);
+    this.handleButtonNonArrowKey = this.handleButtonNonArrowKey.bind(this);
+    this.destroy = this.destroy.bind(this);
+    this.update = this.update.bind(this);
+    this.openMenu = this.openMenu.bind(this);
+    this.closeMenu = this.closeMenu.bind(this);
+    this.toggleMenu = this.toggleMenu.bind(this);
+    this.updateOptions = this.updateOptions.bind(this);
+
+    this.updateOptions(options);
 
     this.focusGroup = createFocusGroup({
       wrap: true,
@@ -56,7 +65,11 @@ class Manager implements ManagerInterface {
   }
 
   set isOpen(isOpen: boolean) {
-    this._isOpen = isOpen;
+    if (isOpen === true) {
+      this.openMenu();
+    } else {
+      this.closeMenu();
+    }
   }
 
   get options() {
@@ -124,7 +137,7 @@ class Manager implements ManagerInterface {
     if (openOptions.focusMenu === undefined) {
       openOptions.focusMenu = true;
     }
-    this.isOpen = true;
+    this._isOpen = true;
     this.update();
     this.focusGroup.activate();
     if (openOptions.focusMenu) {
@@ -137,7 +150,7 @@ class Manager implements ManagerInterface {
   public closeMenu(closeOptions?: { focusButton?: boolean }) {
     if (!this.isOpen) return;
     closeOptions = closeOptions || {};
-    this.isOpen = false;
+    this._isOpen = false;
     this.update();
     this.focusGroup.deactivate();
     if (closeOptions.focusButton) {
