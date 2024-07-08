@@ -1,45 +1,68 @@
 import * as React from "react";
 import { flushSync } from "react-dom";
-import createTapListener from "teeny-tap";
-import type { Manager } from "./types";
-import ManagerContext from "./ManagerContext";
+import { useMenuManager } from "./hooks";
 
 export interface AriaMenuButtonMenuProps
   extends Omit<React.HTMLAttributes<HTMLDivElement>, "children"> {
   children: React.ReactNode | ((props: { isOpen: boolean }) => React.ReactNode);
 }
 
+function eventTargetIsNode(e: EventTarget | null): asserts e is Node {
+  if (!e || !("nodeType" in e)) {
+    throw new Error(`Node expected`);
+  }
+}
+const CLICK_OUTSIDE_EVENTS = ["click"] as const;
 const AriaMenuButtonMenu: React.FC<
   AriaMenuButtonMenuProps & {
-    ambManager: React.RefObject<Manager>;
     forwardedRef?: React.ForwardedRef<HTMLDivElement>;
   }
-> = ({ ambManager, children, forwardedRef, ...props }) => {
+> = ({ children, forwardedRef, ...props }) => {
+  const menuManagerRef = useMenuManager();
   const innerRef = React.useRef<HTMLDivElement>();
-  const tapListenerRef = React.useRef<ReturnType<typeof createTapListener>>();
   const [isOpen, setIsOpen] = React.useState(false);
+  // setup clickoutside which will tell the manager to close the menu
+  React.useEffect(() => {
+    if (!innerRef.current) {
+      return;
+    }
+    const el = innerRef.current;
+    if (!el) return;
+    const doc = el.ownerDocument;
+    if (!doc) return;
+    const Manager = menuManagerRef.current;
+    const handleDown = (event: Event) => {
+      const target = event.target;
+      eventTargetIsNode(target);
+
+      if (
+        innerRef.current.contains(target) ||
+        Manager.button.element.contains(target) ||
+        !Manager?.options?.closeOnBlur
+      ) {
+        return;
+      }
+
+      Manager?.closeMenu();
+    };
+    const cleanup = () => {
+      for (const event of CLICK_OUTSIDE_EVENTS) {
+        doc.removeEventListener(event, handleDown);
+      }
+    };
+
+    for (const event of CLICK_OUTSIDE_EVENTS) {
+      doc.addEventListener(event, handleDown, { passive: true });
+    }
+
+    return cleanup;
+  }, [innerRef, menuManagerRef]);
 
   React.useEffect(() => {
     if (!innerRef.current) {
       return;
     }
-    const Manager = ambManager.current;
-    const tapListener = tapListenerRef.current;
-    const addTapListener = () => {
-      const handleTap = (event: Event) => {
-        if (innerRef.current?.contains(event.target as Node)) return;
-        if (Manager?.button?.element.contains(event.target as Node)) return;
-        Manager?.closeMenu();
-      };
-      const el = innerRef.current;
-      if (!el) return;
-      const doc = el.ownerDocument;
-      if (!doc) return;
-      tapListenerRef.current = createTapListener(
-        doc.documentElement,
-        handleTap,
-      );
-    };
+    const Manager = menuManagerRef.current;
 
     Manager.menu = {
       element: innerRef.current,
@@ -54,40 +77,30 @@ const AriaMenuButtonMenu: React.FC<
         },
       },
     };
-    if (!Manager?.options?.closeOnBlur) return;
-    if (isOpen && !tapListener) {
-      addTapListener();
-    } else if (!isOpen && tapListener) {
-      tapListener.remove();
-    }
 
     if (!isOpen) {
       // Clear the ambManager's items, so they
       // can be reloaded next time this menu opens
       Manager?.clearItems();
     }
+  }, [menuManagerRef, innerRef, setIsOpen, isOpen]);
 
-    return () => {
-      if (tapListener) tapListener.remove();
-    };
-  }, [ambManager, innerRef, setIsOpen, isOpen]);
-
-  const setRef = (instance: HTMLDivElement) => {
-    innerRef.current = instance;
+  const setRef = (node: HTMLDivElement) => {
+    innerRef.current = node;
     if (typeof forwardedRef === "function") {
-      forwardedRef(instance);
+      forwardedRef(node);
     } else if (forwardedRef) {
-      forwardedRef.current = instance;
+      forwardedRef.current = node;
     }
   };
 
   const menuProps = {
-    onKeyDown: ambManager.current?.handleMenuKey,
+    onKeyDown: menuManagerRef.current?.handleMenuKey,
     role: isOpen ? "menu" : "presentation",
     tabIndex: -1,
     onBlur: (e) => {
-      if (ambManager.current?.options?.closeOnBlur) {
-        ambManager.current?.handleBlur();
+      if (menuManagerRef.current?.options?.closeOnBlur) {
+        menuManagerRef.current?.handleBlur();
       }
       if (props.onBlur) {
         props.onBlur(e);
@@ -98,8 +111,8 @@ const AriaMenuButtonMenu: React.FC<
   return (
     <div {...props} {...menuProps} ref={setRef}>
       {typeof children === "function"
-        ? children({ isOpen: ambManager.current?.isOpen ?? false })
-        : ambManager.current?.isOpen
+        ? children({ isOpen: menuManagerRef.current?.isOpen ?? false })
+        : menuManagerRef.current?.isOpen
           ? children
           : null}
     </div>
@@ -108,19 +121,8 @@ const AriaMenuButtonMenu: React.FC<
 
 export const Menu = React.forwardRef<HTMLDivElement, AriaMenuButtonMenuProps>(
   ({ children, ...props }, ref) => {
-    const managerCtx = React.useContext(ManagerContext);
-    if (!managerCtx || !managerCtx.managerRef) {
-      throw new Error(
-        "ManagerContext not found, `<Button/>` must be used inside of a `<Wrapper/>` component",
-      );
-    }
-
     return (
-      <AriaMenuButtonMenu
-        ambManager={managerCtx.managerRef}
-        forwardedRef={ref}
-        {...props}
-      >
+      <AriaMenuButtonMenu forwardedRef={ref} {...props}>
         {children}
       </AriaMenuButtonMenu>
     );

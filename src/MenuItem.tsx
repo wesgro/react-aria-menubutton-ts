@@ -1,8 +1,7 @@
 /* eslint-disable react/display-name */
 import * as React from "react";
 
-import type { Manager } from "./types";
-import ManagerContext from "./ManagerContext";
+import { useMenuManager } from "./hooks";
 
 export interface MenuItemProps extends React.HTMLAttributes<HTMLDivElement> {
   children: React.ReactNode;
@@ -12,18 +11,17 @@ export interface MenuItemProps extends React.HTMLAttributes<HTMLDivElement> {
 
 const AriaMenuButtonMenuItem: React.FC<
   MenuItemProps & {
-    ambManager: React.RefObject<Manager>;
     forwardedRef?: React.ForwardedRef<HTMLDivElement>;
   }
-> = ({ ambManager, children, forwardedRef, text, value, ...props }) => {
+> = ({ children, forwardedRef, text, value, ...props }) => {
   const innerRef = React.useRef<HTMLDivElement>();
-
+  const menuManagerRef = useMenuManager();
   React.useEffect(() => {
     if (!innerRef.current) {
       return;
     }
     const el = innerRef.current;
-    const manager = ambManager.current;
+    const manager = menuManagerRef.current;
     manager.addItem({
       node: el,
       text: text,
@@ -32,7 +30,7 @@ const AriaMenuButtonMenuItem: React.FC<
     return () => {
       manager.removeItem(el);
     };
-  }, [ambManager, text, innerRef]);
+  }, [menuManagerRef, text, innerRef]);
 
   const handleKeyDown = (event: React.KeyboardEvent<HTMLDivElement>) => {
     if (event.key !== "Enter" && event.key !== " ") return;
@@ -49,17 +47,17 @@ const AriaMenuButtonMenuItem: React.FC<
     // If there's no value, we'll send the child
     const selectedValue = typeof value !== "undefined" ? value : children;
 
-    if (ambManager.current?.handleSelection) {
-      ambManager.current.handleSelection(selectedValue, event);
+    if (menuManagerRef.current?.handleSelection) {
+      menuManagerRef.current.handleSelection(selectedValue, event);
     }
   };
 
-  const setRef = (instance: HTMLDivElement) => {
-    innerRef.current = instance;
+  const setRef = (node: HTMLDivElement) => {
+    innerRef.current = node;
     if (typeof forwardedRef === "function") {
-      forwardedRef(instance);
+      forwardedRef(node);
     } else if (forwardedRef) {
-      forwardedRef.current = instance;
+      forwardedRef.current = node;
     }
   };
 
@@ -80,19 +78,8 @@ const AriaMenuButtonMenuItem: React.FC<
 
 export const MenuItem = React.forwardRef<HTMLDivElement, MenuItemProps>(
   ({ children, ...props }, ref) => {
-    const managerCtx = React.useContext(ManagerContext);
-    if (!managerCtx || !managerCtx.managerRef) {
-      throw new Error(
-        "ManagerContext not found, `<Button/>` must be used inside of a `<Wrapper/>` component",
-      );
-    }
-
     return (
-      <AriaMenuButtonMenuItem
-        ambManager={managerCtx.managerRef}
-        forwardedRef={ref}
-        {...props}
-      >
+      <AriaMenuButtonMenuItem forwardedRef={ref} {...props}>
         {children}
       </AriaMenuButtonMenuItem>
     );

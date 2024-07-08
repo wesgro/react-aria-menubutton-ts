@@ -1,7 +1,7 @@
 import "@testing-library/jest-dom/vitest";
 import * as React from "react";
 import { test, expect } from "vitest";
-import { render, screen } from "@testing-library/react";
+import { render, screen, waitFor } from "@testing-library/react";
 import { userEvent } from "@testing-library/user-event";
 
 import { Button } from "./Button";
@@ -104,4 +104,37 @@ test("Down arrow while the menu is open keeps the menu open", async () => {
   expect(screen.getByRole("menu")).toBeInTheDocument();
   await userEvent.type(button, "{arrowdown}");
   expect(screen.getByRole("menu")).toBeInTheDocument();
+});
+
+test("Two down arrows from the button select the second item in the menu", async () => {
+  render(<Stage />);
+  await userEvent.tab();
+  waitFor(() => {
+    expect(screen.getByRole("button", { name: "Select a word" })).toHaveFocus();
+  });
+  await userEvent.keyboard("{arrowdown}");
+  expect(screen.getByRole("menu")).toBeInTheDocument();
+  waitFor(() => {
+    expect(screen.getByText("apple")).toHaveFocus();
+  });
+  await userEvent.keyboard("{arrowdown}");
+  waitFor(() => {
+    expect(screen.getByText("banana")).toHaveFocus();
+  });
+  await userEvent.keyboard("{enter}");
+  waitFor(() => {
+    expect(screen.getByRole("note")).toHaveTextContent("banana");
+  });
+});
+
+test("opening the menu and typing the letter 'c' selects 'cherry'", async () => {
+  render(<Stage />);
+  await userEvent.tab();
+  waitFor(() => {
+    expect(screen.getByRole("button", { name: "Select a word" })).toHaveFocus();
+  });
+  await userEvent.keyboard("c");
+  waitFor(() => {
+    expect(screen.getByText("cherry")).toHaveFocus();
+  });
 });

@@ -1,8 +1,6 @@
 import * as React from "react";
 import { flushSync } from "react-dom";
-import ManagerContext from "./ManagerContext";
-
-import type { Manager } from "./types";
+import { useMenuManager } from "./hooks";
 
 export interface ButtonProps<T extends HTMLElement>
   extends React.HTMLAttributes<T> {
@@ -23,14 +21,14 @@ export interface ButtonProps<T extends HTMLElement>
  */
 const AriaMenuButtonButton: React.FC<
   ButtonProps<HTMLButtonElement> & {
-    ambManager: React.RefObject<Manager>;
     forwardedRef?: React.ForwardedRef<HTMLButtonElement>;
   }
-> = ({ ambManager, children, forwardedRef, ...props }) => {
+> = ({ children, forwardedRef, ...props }) => {
+  const menuManager = useMenuManager();
   const innerRef = React.useRef<HTMLElement>();
   const [isOpen, setIsOpen] = React.useState(false);
   React.useEffect(() => {
-    const managerRef = ambManager.current;
+    const managerRef = menuManager.current;
     if (innerRef.current) {
       managerRef.button = {
         element: innerRef.current,
@@ -52,42 +50,41 @@ const AriaMenuButtonButton: React.FC<
     return () => {
       managerRef.destroy();
     };
-  }, [ambManager, setIsOpen, innerRef, isOpen]);
+  }, [menuManager, setIsOpen, innerRef, isOpen]);
 
   const handleKeyDown = (event: React.KeyboardEvent<HTMLButtonElement>) => {
     if (props.disabled) return;
 
-    const Manager = ambManager.current;
+    const Manager = menuManager.current;
     switch (event.key) {
       case "ArrowDown":
         event.preventDefault();
-        
         if (!isOpen) {
-          Manager?.openMenu();
+          Manager.openMenu();
         } else {
-          Manager?.focusItem(0);
+          Manager.focusItem(0);
         }
 
         break;
       case "Enter":
       case " ":
         event.preventDefault();
-        Manager?.toggleMenu();
+        Manager.toggleMenu();
         break;
       case "Escape":
-        if (Manager?.handleMenuKey) {
+        if (Manager.handleMenuKey) {
           Manager.handleMenuKey(event);
         }
         break;
       default:
         // (Potential) letter keys
-        Manager?.handleButtonNonArrowKey(event);
+        Manager.handleButtonNonArrowKey(event);
     }
   };
 
   const handleClick = () => {
     if (props.disabled) return;
-    ambManager.current.toggleMenu({}, { focusMenu: false });
+    menuManager.current.toggleMenu({}, { focusMenu: false });
   };
 
   const setRef = (instance: HTMLButtonElement) => {
@@ -108,8 +105,8 @@ const AriaMenuButtonButton: React.FC<
     onKeyDown: handleKeyDown,
     onClick: handleClick,
     onBlur: (e) => {
-      if (ambManager.current?.options?.closeOnBlur) {
-        ambManager.current?.handleBlur();
+      if (menuManager.current?.options?.closeOnBlur) {
+        menuManager.current?.handleBlur();
       }
       if (props.onBlur) {
         props.onBlur(e);
@@ -129,19 +126,8 @@ export const Button = React.forwardRef<
   HTMLButtonElement,
   ButtonProps<HTMLElement>
 >(({ children, ...props }, ref) => {
-  const managerCtx = React.useContext(ManagerContext);
-  if (!managerCtx || !managerCtx.managerRef) {
-    throw new Error(
-      "ManagerContext not found, `<Button/>` must be used inside of a `<Wrapper/>` component",
-    );
-  }
-
   return (
-    <AriaMenuButtonButton
-      ambManager={managerCtx.managerRef}
-      forwardedRef={ref}
-      {...props}
-    >
+    <AriaMenuButtonButton forwardedRef={ref} {...props}>
       {children}
     </AriaMenuButtonButton>
   );
