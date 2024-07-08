@@ -138,3 +138,23 @@ test("opening the menu and typing the letter 'c' selects 'cherry'", async () => 
     expect(screen.getByText("cherry")).toHaveFocus();
   });
 });
+
+test("opening the menu, closing the menu, and opening the menu again still attaches the event listener", async () => {
+  render(<Stage />);
+  const button = screen.getByRole("button", { name: "Select a word" });
+  await userEvent.click(button);
+  expect(screen.getByRole("menu")).toBeInTheDocument();
+  await userEvent.click(document.body);
+  expect(screen.queryByRole("menu")).not.toBeInTheDocument();
+  await userEvent.click(button);
+  expect(screen.getByRole("menu")).toBeInTheDocument();
+  await userEvent.keyboard("{arrowdown}");
+  expect(screen.getByRole("menu")).toBeInTheDocument();
+  waitFor(() => {
+    expect(screen.getByText("apple")).toHaveFocus();
+  });
+  await userEvent.keyboard("{arrowdown}");
+  waitFor(() => {
+    expect(screen.getByText("banana")).toHaveFocus();
+  });
+});

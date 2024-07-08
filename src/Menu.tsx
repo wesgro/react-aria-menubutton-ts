@@ -16,7 +16,7 @@ const AriaMenuButtonMenu: React.FC<
   AriaMenuButtonMenuProps & {
     forwardedRef?: React.ForwardedRef<HTMLDivElement>;
   }
-> = ({ children, forwardedRef, ...props }) => {
+> = ({ children, forwardedRef, onKeyDown, ...props }) => {
   const menuManagerRef = useMenuManager();
   const [isOpen, setIsOpen] = React.useState(false);
   const [el, setEl] = React.useState<HTMLElement | null>(null);
@@ -70,22 +70,21 @@ const AriaMenuButtonMenu: React.FC<
       doc.addEventListener("pointerdown", handleDown, { passive: true });
 
       return () => {
-        doc.addEventListener("pointerdown", handleDown, { passive: true });
+        doc.removeEventListener("pointerdown", handleDown);
       };
     },
     [el, menuManagerRef],
   );
 
   React.useEffect(() => {
-    if (!el) {
+    if (!el || isOpen === false) {
       listenerCleanupRef.current && listenerCleanupRef.current();
       return;
     }
     const doc = el.ownerDocument;
     listenerCleanupRef.current = attach(doc);
-
     return listenerCleanupRef.current;
-  }, [el, attach, listenerCleanupRef]);
+  }, [el, attach, listenerCleanupRef, isOpen]);
 
   const setRef = React.useCallback(
     (node: HTMLDivElement | null) => {
@@ -99,25 +98,30 @@ const AriaMenuButtonMenu: React.FC<
     [forwardedRef, setEl],
   );
 
-  const menuProps = {
-    onKeyDown: menuManagerRef.current?.handleMenuKey,
-    role: isOpen ? "menu" : "presentation",
-    tabIndex: -1,
-    onBlur: (e) => {
-      if (menuManagerRef.current?.options?.closeOnBlur) {
-        menuManagerRef.current?.handleBlur();
-      }
-      if (props.onBlur) {
-        props.onBlur(e);
-      }
-    },
-  };
-
   return (
-    <div {...props} {...menuProps} ref={setRef}>
+    <div
+      role={isOpen ? "menu" : "presentation"}
+      tabIndex={-1}
+      onBlur={(e) => {
+        if (menuManagerRef.current?.options?.closeOnBlur) {
+          menuManagerRef.current?.handleBlur();
+        }
+        if (props.onBlur) {
+          props.onBlur(e);
+        }
+      }}
+      onKeyDown={(e) => {
+        menuManagerRef.current?.handleMenuKey(e)
+        if (onKeyDown) {
+          onKeyDown(e);
+        }
+      }}
+      {...props}
+      ref={setRef}
+    >
       {typeof children === "function"
-        ? children({ isOpen: menuManagerRef.current?.isOpen ?? false })
-        : menuManagerRef.current?.isOpen
+        ? children({ isOpen: menuManagerRef.current.isOpen })
+        : menuManagerRef.current.isOpen
           ? children
           : null}
     </div>
