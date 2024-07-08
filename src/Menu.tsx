@@ -12,60 +12,24 @@ function eventTargetIsNode(e: EventTarget | null): asserts e is Node {
     throw new Error(`Node expected`);
   }
 }
-const CLICK_OUTSIDE_EVENTS = ["click"] as const;
 const AriaMenuButtonMenu: React.FC<
   AriaMenuButtonMenuProps & {
     forwardedRef?: React.ForwardedRef<HTMLDivElement>;
   }
 > = ({ children, forwardedRef, ...props }) => {
   const menuManagerRef = useMenuManager();
-  const innerRef = React.useRef<HTMLDivElement>();
   const [isOpen, setIsOpen] = React.useState(false);
-  // setup clickoutside which will tell the manager to close the menu
-  React.useEffect(() => {
-    if (!innerRef.current) {
-      return;
-    }
-    const el = innerRef.current;
-    if (!el) return;
-    const doc = el.ownerDocument;
-    if (!doc) return;
-    const Manager = menuManagerRef.current;
-    const handleDown = (event: Event) => {
-      const target = event.target;
-      eventTargetIsNode(target);
-
-      if (
-        innerRef.current.contains(target) ||
-        Manager.button.element.contains(target) ||
-        !Manager?.options?.closeOnBlur
-      ) {
-        return;
-      }
-
-      Manager?.closeMenu();
-    };
-    const cleanup = () => {
-      for (const event of CLICK_OUTSIDE_EVENTS) {
-        doc.removeEventListener(event, handleDown);
-      }
-    };
-
-    for (const event of CLICK_OUTSIDE_EVENTS) {
-      doc.addEventListener(event, handleDown, { passive: true });
-    }
-
-    return cleanup;
-  }, [innerRef, menuManagerRef]);
+  const [el, setEl] = React.useState<HTMLElement | null>(null);
+  const listenerCleanupRef = React.useRef<() => void | undefined>();
 
   React.useEffect(() => {
-    if (!innerRef.current) {
+    if (!el) {
       return;
     }
     const Manager = menuManagerRef.current;
 
     Manager.menu = {
-      element: innerRef.current,
+      element: el,
       functions: {
         setState: (state) => {
           flushSync(() => {
@@ -83,16 +47,57 @@ const AriaMenuButtonMenu: React.FC<
       // can be reloaded next time this menu opens
       Manager?.clearItems();
     }
-  }, [menuManagerRef, innerRef, setIsOpen, isOpen]);
+  }, [menuManagerRef, el, setIsOpen, isOpen]);
 
-  const setRef = (node: HTMLDivElement) => {
-    innerRef.current = node;
-    if (typeof forwardedRef === "function") {
-      forwardedRef(node);
-    } else if (forwardedRef) {
-      forwardedRef.current = node;
+  const attach = React.useCallback(
+    (doc: Document) => {
+      const Manager = menuManagerRef.current;
+      const handleDown = (event: Event) => {
+        const target = event.target;
+        eventTargetIsNode(target);
+
+        if (
+          el.contains(target) ||
+          Manager.button.element.contains(target) ||
+          !Manager?.options?.closeOnBlur
+        ) {
+          return;
+        }
+
+        Manager?.closeMenu();
+      };
+
+      doc.addEventListener("pointerdown", handleDown, { passive: true });
+
+      return () => {
+        doc.addEventListener("pointerdown", handleDown, { passive: true });
+      };
+    },
+    [el, menuManagerRef],
+  );
+
+  React.useEffect(() => {
+    if (!el) {
+      listenerCleanupRef.current && listenerCleanupRef.current();
+      return;
     }
-  };
+    const doc = el.ownerDocument;
+    listenerCleanupRef.current = attach(doc);
+
+    return listenerCleanupRef.current;
+  }, [el, attach, listenerCleanupRef]);
+
+  const setRef = React.useCallback(
+    (node: HTMLDivElement | null) => {
+      setEl(node);
+      if (typeof forwardedRef === "function") {
+        forwardedRef(node);
+      } else if (forwardedRef) {
+        forwardedRef.current = node;
+      }
+    },
+    [forwardedRef, setEl],
+  );
 
   const menuProps = {
     onKeyDown: menuManagerRef.current?.handleMenuKey,
