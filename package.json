@@ -60,8 +60,7 @@
     "widget"
   ],
   "dependencies": {
-    "focus-group": "^0.3.1",
-    "teeny-tap": "^0.2.0"
+    "focus-group": "^0.3.1"
   },
   "peerDependencies": {
     "@types/react": "^16.14.0 || 17 || 18",

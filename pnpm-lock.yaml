@@ -11,9 +11,6 @@ importers:
       focus-group:
         specifier: ^0.3.1
         version: 0.3.1
-      teeny-tap:
-        specifier: ^0.2.0
-        version: 0.2.0
     devDependencies:
       '@arethetypeswrong/cli':
         specifier: ^0.15.3
@@ -2051,9 +2048,6 @@ packages:
   supports-preserve-symlinks-flag@1.0.0:
     resolution: {integrity: sha512-ot0WnXS9fgdkgIcePe6RHNk1WA8+muPa6cSjeR3V8K27q9BB1rTE3R1p7Hv0z1ZyAc8s6Vvv8DIyWf681MAt0w==}
     engines: {node: '>= 0.4'}
-
-  teeny-tap@0.2.0:
-    resolution: {integrity: sha512-HnA3I2sxRQe/SZgQTQgQvvA17DhfzhBJ1LfSOXZ5VUTbxGLvnAqUef84ZGNNSEbk1ZMEIDeghTHZagJ7LifAgg==}
 
   text-table@0.2.0:
     resolution: {integrity: sha512-N+8UisAXDGk8PFXP4HAzVR9nbfmVJ3zYLAWiTIoqC5v5isinhr+r5uaO8+7r3BMfuNIufIsA7RdpVgacC2cSpw==}
@@ -4441,8 +4435,6 @@ snapshots:
       supports-color: 7.2.0
 
   supports-preserve-symlinks-flag@1.0.0: {}
-
-  teeny-tap@0.2.0: {}
 
   text-table@0.2.0: {}
 
