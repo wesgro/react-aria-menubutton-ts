@@ -1,7 +1,7 @@
 {
   "name": "react-aria-menubutton-ts",
   "version": "0.0.1",
-  "description": "A fully accessible and flexible React-powered menu button",
+  "description": "A Typescript / modern version of react-aria-menubutton",
   "type": "module",
   "module": "dist/index.js",
   "main": "dist/index.cjs",
@@ -16,6 +16,9 @@
       "types": "./dist/index.d.cts"
     }
   },
+  "publishConfig": {
+    "access": "public"
+  },
   "scripts": {
     "lint": "eslint 'src/**/*.{ts,tsx}'",
     "prepack": "pnpm run build",
@@ -27,22 +30,12 @@
     "typecheck": "tsc --noEmit",
     "typecheck:package": "attw --pack ."
   },
-  "husky": {
-    "hooks": {
-      "pre-commit": "lint-staged"
-    }
-  },
-  "lint-staged": {
-    "*.{ts,tsx}": "eslint"
-  },
   "repository": {
     "type": "git",
     "url": "https://github.com/wesgro/react-aria-menubutton-ts.git"
   },
   "author": {
-    "name": "David Clark",
-    "email": "david.dave.clark@gmail.com",
-    "url": "http://davidtheclark.com"
+    "name": "Jacob Ketcheson"
   },
   "license": "MIT",
   "bugs": {
@@ -83,8 +76,6 @@
     "eslint-plugin-react": "^7.34.3",
     "eslint-plugin-react-hooks": "^4.6.2",
     "happy-dom": "^14.12.3",
-    "husky": "^8.0.3",
-    "lint-staged": "^13.2.1",
     "prettier": "^3.3.2",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
@@ -93,5 +84,5 @@
     "vite": "^5.3.2",
     "vitest": "^1.6.0"
   },
-  "packageManager": "pnpm@9.4.0+sha512.f549b8a52c9d2b8536762f99c0722205efc5af913e77835dbccc3b0b0b2ca9e7dc8022b78062c17291c48e88749c70ce88eb5a74f1fa8c4bf5e18bb46c8bd83a"
+  "packageManager": "pnpm@9.5.0"
 }
