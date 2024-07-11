@@ -1,5 +1,5 @@
 {
-  "name": "react-aria-menubutton-ts",
+  "name": "@wesgro/react-aria-menubutton-ts",
   "version": "0.0.1",
   "description": "A Typescript / modern version of react-aria-menubutton",
   "type": "module",
