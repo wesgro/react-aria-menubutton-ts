@@ -1,6 +1,6 @@
 {
   "name": "@wesgro/react-aria-menubutton-ts",
-  "version": "0.0.1",
+  "version": "0.0.2-beta.0",
   "description": "A Typescript / modern version of react-aria-menubutton",
   "type": "module",
   "module": "dist/index.js",
