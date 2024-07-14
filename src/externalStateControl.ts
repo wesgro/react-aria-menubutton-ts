@@ -12,14 +12,14 @@ export function unregisterManager(menuId: string) {
   delete registeredManagers[menuId];
 }
 
-export function openMenu(menuId: string, openOptions: OpenOptions) {
+export function openMenu(menuId: string, openOptions?: OpenOptions) {
   const manager = registeredManagers[menuId];
   if (!manager) throw new Error("Cannot open " + errorCommon);
 
   manager.openMenu(openOptions);
 }
 
-export function closeMenu(menuId: string, closeOptions: CloseOptions) {
+export function closeMenu(menuId: string, closeOptions?: CloseOptions) {
   const manager = registeredManagers[menuId];
   if (!manager) throw new Error("Cannot close " + errorCommon);
   manager.closeMenu(closeOptions);
