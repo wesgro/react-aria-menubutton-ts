@@ -55,3 +55,5 @@ export interface ManagerOptions {
     event: React.SyntheticEvent<HTMLElement>,
   ) => void;
 }
+
+export type ValidElements = "li" | "button" | "div" | "span" | "ul";

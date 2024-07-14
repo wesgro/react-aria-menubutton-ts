@@ -1,7 +1,7 @@
 import * as React from "react";
 import { flushSync } from "react-dom";
 import { useMenuManager } from "./hooks";
-
+import { ValidElements } from "./types";
 export interface ButtonProps<T extends HTMLElement>
   extends React.HTMLAttributes<T> {
   /**
@@ -9,6 +9,8 @@ export interface ButtonProps<T extends HTMLElement>
    * (aria-disabled='true', not in tab order, clicking has no effect).
    */
   disabled?: boolean | undefined;
+
+  tag?: ValidElements;
 }
 
 /**
@@ -23,7 +25,7 @@ const AriaMenuButtonButton: React.FC<
   ButtonProps<HTMLButtonElement> & {
     forwardedRef?: React.ForwardedRef<HTMLButtonElement>;
   }
-> = ({ children, forwardedRef, ...props }) => {
+> = ({ children, forwardedRef, tag: Tag ='button', ...props }) => {
   const menuManager = useMenuManager();
   const innerRef = React.useRef<HTMLElement>();
   const [isOpen, setIsOpen] = React.useState(false);
@@ -97,7 +99,6 @@ const AriaMenuButtonButton: React.FC<
   };
 
   const buttonProps = {
-    role: "button",
     tabIndex: props.disabled ? -1 : 0,
     "aria-haspopup": true,
     "aria-expanded": isOpen,
@@ -116,9 +117,11 @@ const AriaMenuButtonButton: React.FC<
   };
 
   return (
-    <button {...props} {...buttonProps}>
+    // @ts-expect-error This is complaining about props ending up on the wrong tag
+    // but fixing it with types is more annoying than its worth
+    <Tag role="button" {...props} {...buttonProps}>
       {children}
-    </button>
+    </Tag>
   );
 };
 

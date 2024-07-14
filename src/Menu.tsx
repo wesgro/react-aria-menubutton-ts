@@ -1,10 +1,12 @@
 import * as React from "react";
 import { flushSync } from "react-dom";
 import { useMenuManager } from "./hooks";
+import { ValidElements } from "./types";
 
-export interface AriaMenuButtonMenuProps
+export interface MenuProps
   extends Omit<React.HTMLAttributes<HTMLDivElement>, "children"> {
   children: React.ReactNode | ((props: { isOpen: boolean }) => React.ReactNode);
+  tag?: Exclude<ValidElements, "button">;
 }
 
 function eventTargetIsNode(e: EventTarget | null): asserts e is Node {
@@ -13,10 +15,10 @@ function eventTargetIsNode(e: EventTarget | null): asserts e is Node {
   }
 }
 const AriaMenuButtonMenu: React.FC<
-  AriaMenuButtonMenuProps & {
+  MenuProps & {
     forwardedRef?: React.ForwardedRef<HTMLDivElement>;
   }
-> = ({ children, forwardedRef, onKeyDown, ...props }) => {
+> = ({ children, forwardedRef, onKeyDown, tag: Tag = "div", ...props }) => {
   const menuManagerRef = useMenuManager();
   const [isOpen, setIsOpen] = React.useState(false);
   const [el, setEl] = React.useState<HTMLElement | null>(null);
@@ -58,7 +60,7 @@ const AriaMenuButtonMenu: React.FC<
 
         if (
           el.contains(target) ||
-          Manager.button.element.contains(target) ||
+          Manager?.button?.element.contains(target) ||
           !Manager?.options?.closeOnBlur
         ) {
           return;
@@ -87,7 +89,7 @@ const AriaMenuButtonMenu: React.FC<
   }, [el, attach, listenerCleanupRef, isOpen]);
 
   const setRef = React.useCallback(
-    (node: HTMLDivElement | null) => {
+    (node: HTMLDivElement) => {
       setEl(node);
       if (typeof forwardedRef === "function") {
         forwardedRef(node);
@@ -99,9 +101,10 @@ const AriaMenuButtonMenu: React.FC<
   );
 
   return (
-    <div
+    <Tag
       role={isOpen ? "menu" : "presentation"}
       tabIndex={-1}
+      // @ts-expect-error Complaining about HTML attributes and this isn't worth fixing correctly atm
       onBlur={(e) => {
         if (menuManagerRef.current?.options?.closeOnBlur) {
           menuManagerRef.current?.handleBlur();
@@ -111,12 +114,13 @@ const AriaMenuButtonMenu: React.FC<
         }
       }}
       onKeyDown={(e) => {
-        menuManagerRef.current?.handleMenuKey(e)
+        menuManagerRef.current?.handleMenuKey(e);
         if (onKeyDown) {
           onKeyDown(e);
         }
       }}
       {...props}
+      // @ts-expect-error Complaining about HTML attributes and this isn't worth fixing correctly atm
       ref={setRef}
     >
       {typeof children === "function"
@@ -124,11 +128,11 @@ const AriaMenuButtonMenu: React.FC<
         : menuManagerRef.current.isOpen
           ? children
           : null}
-    </div>
+    </Tag>
   );
 };
 
-export const Menu = React.forwardRef<HTMLDivElement, AriaMenuButtonMenuProps>(
+export const Menu = React.forwardRef<HTMLDivElement, MenuProps>(
   ({ children, ...props }, ref) => {
     return (
       <AriaMenuButtonMenu forwardedRef={ref} {...props}>

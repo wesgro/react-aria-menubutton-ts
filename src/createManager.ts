@@ -42,7 +42,6 @@ class Manager implements ManagerInterface {
   }
 
   get button() {
-    if (!this._button) throw new Error("Button not set");
     return this._button;
   }
 
@@ -51,7 +50,6 @@ class Manager implements ManagerInterface {
   }
 
   get menu() {
-    if (!this._menu) throw new Error("Menu not set");
     return this._menu;
   }
 
@@ -129,8 +127,8 @@ class Manager implements ManagerInterface {
   }
 
   public update() {
-    this.menu.functions.setState({ isOpen: this.isOpen });
-    this.button.functions.setState({ menuOpen: this.isOpen });
+    this.menu?.functions.setState({ isOpen: this.isOpen });
+    this.button?.functions.setState({ menuOpen: this.isOpen });
     this.options.onMenuToggle?.({ isOpen: this.isOpen });
   }
 
@@ -158,7 +156,7 @@ class Manager implements ManagerInterface {
     this.update();
     this.focusGroup.deactivate();
     if (closeOptions.focusButton) {
-      this.button.functions.focus();
+      this.button?.functions.focus();
     }
   }
 

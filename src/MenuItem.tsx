@@ -1,19 +1,21 @@
 /* eslint-disable react/display-name */
 import * as React from "react";
-
+import { ValidElements } from "./types";
 import { useMenuManager } from "./hooks";
 
 export interface MenuItemProps extends React.HTMLAttributes<HTMLDivElement> {
   children: React.ReactNode;
-  text: string;
-  value: string | number;
+  text?: string;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  value?: any;
+  tag?: Exclude<ValidElements, "button">;
 }
 
 const AriaMenuButtonMenuItem: React.FC<
   MenuItemProps & {
     forwardedRef?: React.ForwardedRef<HTMLDivElement>;
   }
-> = ({ children, forwardedRef, text, value, ...props }) => {
+> = ({ children, forwardedRef, text, value, tag: Tag = "div", ...props }) => {
   const innerRef = React.useRef<HTMLDivElement>();
   const menuManagerRef = useMenuManager();
   React.useEffect(() => {
@@ -70,9 +72,10 @@ const AriaMenuButtonMenuItem: React.FC<
   };
 
   return (
-    <div {...props} {...menuItemProps}>
+    // @ts-expect-error Complaining about HTML attributes and this isn't worth fixing correctly atm
+    <Tag {...props} {...menuItemProps}>
       {children}
-    </div>
+    </Tag>
   );
 };
 

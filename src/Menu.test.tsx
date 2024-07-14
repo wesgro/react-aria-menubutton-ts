@@ -8,6 +8,7 @@ import { Button } from "./Button";
 import { Menu } from "./Menu";
 import { MenuItem } from "./MenuItem";
 import { Wrapper } from "./Wrapper";
+import {openMenu, closeMenu} from "./externalStateControl";
 
 const OPTIONS = ["apple", "banana", "cherry"] as const;
 const initialValue = "apple";
@@ -24,6 +25,32 @@ const Stage: React.FC<StageProps> = ({ closeOnBlur = true, disabled }) => {
         onSelection={(value) => setCurrentOption(String(value))}
       >
         <Button disabled={disabled}>Select a word</Button>
+        <Menu>
+          <ul>
+            {OPTIONS.map((item) => (
+              <MenuItem key={item} text={item} value={item}>
+                {item}
+              </MenuItem>
+            ))}
+          </ul>
+        </Menu>
+        <output role="note">{currentOption}</output>
+      </Wrapper>
+    </div>
+  );
+};
+
+const ImperativeStage: React.FC<StageProps> = ({ closeOnBlur = true }) => {
+  const [currentOption, setCurrentOption] = React.useState(initialValue);
+  return (
+    <div>
+      <button onClick={()=>openMenu('foo')}>Select a word</button>
+      <button onClick={()=>closeMenu('foo')}>Close a word</button>
+      <Wrapper
+        id="foo"
+        closeOnBlur={closeOnBlur}
+        onSelection={(value) => setCurrentOption(String(value))}
+      >
         <Menu>
           <ul>
             {OPTIONS.map((item) => (
@@ -157,4 +184,32 @@ test("opening the menu, closing the menu, and opening the menu again still attac
   waitFor(() => {
     expect(screen.getByText("banana")).toHaveFocus();
   });
+});
+
+test("can open the menu imperitively", async () => {
+  render(<ImperativeStage />);
+  expect(screen.getByRole("note")).toHaveTextContent(initialValue);
+  const button = screen.getByRole("button", { name: "Select a word" });
+  expect(screen.queryByRole("menu")).not.toBeInTheDocument();
+
+  await userEvent.click(button);
+
+  expect(screen.getByRole("menu")).toBeInTheDocument();
+  const menuItem = screen.getByText("banana");
+  await userEvent.click(menuItem);
+  expect(screen.getByRole("note")).toHaveTextContent("banana");
+});
+
+test("can close the menu imperitively", async () => {
+  render(<ImperativeStage />);
+  expect(screen.getByRole("note")).toHaveTextContent(initialValue);
+  const button = screen.getByRole("button", { name: "Select a word" });
+  expect(screen.queryByRole("menu")).not.toBeInTheDocument();
+
+  await userEvent.click(button);
+
+  expect(screen.getByRole("menu")).toBeInTheDocument();
+
+  await userEvent.click(screen.getByRole("button", { name: "Close a word" }));
+  expect(screen.queryByRole("menu")).not.toBeInTheDocument();
 });
