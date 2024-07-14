@@ -24,6 +24,7 @@
     "prepack": "pnpm run build",
     "pack": "pnpm pack",
     "start": "vite",
+    "build:demo": "vite build",
     "test": "vitest",
     "format": "prettier --write ./src",
     "build": "tsup",
