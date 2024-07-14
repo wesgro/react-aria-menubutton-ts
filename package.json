@@ -25,6 +25,7 @@
     "pack": "pnpm pack",
     "start": "vite",
     "build:demo": "vite build",
+    "preview": "vite preview --port 8080",
     "test": "vitest",
     "format": "prettier --write ./src",
     "build": "tsup",
