@@ -8,7 +8,7 @@ import { Button } from "./Button";
 import { Menu } from "./Menu";
 import { MenuItem } from "./MenuItem";
 import { Wrapper } from "./Wrapper";
-import {openMenu, closeMenu} from "./externalStateControl";
+import { openMenu, closeMenu } from "./externalStateControl";
 
 const OPTIONS = ["apple", "banana", "cherry"] as const;
 const initialValue = "apple";
@@ -44,8 +44,8 @@ const ImperativeStage: React.FC<StageProps> = ({ closeOnBlur = true }) => {
   const [currentOption, setCurrentOption] = React.useState(initialValue);
   return (
     <div>
-      <button onClick={()=>openMenu('foo')}>Select a word</button>
-      <button onClick={()=>closeMenu('foo')}>Close a word</button>
+      <button onClick={() => openMenu("foo")}>Select a word</button>
+      <button onClick={() => closeMenu("foo")}>Close a word</button>
       <Wrapper
         id="foo"
         closeOnBlur={closeOnBlur}

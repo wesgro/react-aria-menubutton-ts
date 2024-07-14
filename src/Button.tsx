@@ -25,7 +25,7 @@ const AriaMenuButtonButton: React.FC<
   ButtonProps<HTMLButtonElement> & {
     forwardedRef?: React.ForwardedRef<HTMLButtonElement>;
   }
-> = ({ children, forwardedRef, tag: Tag ='button', ...props }) => {
+> = ({ children, forwardedRef, tag: Tag = "button", ...props }) => {
   const menuManager = useMenuManager();
   const innerRef = React.useRef<HTMLElement>();
   const [isOpen, setIsOpen] = React.useState(false);
