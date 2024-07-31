@@ -1,4 +1,4 @@
-# @wesgro/react-aria-menubutton-ts-ts 
+# @wesgro/react-aria-menubutton-ts
 
 [![Test](https://github.com/wesgro/react-aria-menubutton-ts/actions/workflows/test.yml/badge.svg)](https://github.com/wesgro/react-aria-menubutton-ts/actions/workflows/test.yml) [![Build](https://github.com/wesgro/react-aria-menubutton-ts/actions/workflows/build.yml/badge.svg)](https://github.com/wesgro/react-aria-menubutton-ts/actions/workflows/build.yml)
 
@@ -10,7 +10,7 @@ It strives to have an identical API but with support for React 18 and beyond
 
 A React component (set of components, really) that will help you build accessible menu buttons by providing keyboard interactions and ARIA attributes aligned with [the WAI-ARIA Menu Button Design Pattern](http://www.w3.org/TR/wai-aria-practices/#menubutton).
 
-Please check out [the demo](https://wesgro.github.io/@wesgro/react-aria-menubutton-ts-ts/).
+Please check out [the demo](https://wesgro.github.io/react-aria-menubutton-ts/).
 
 ## Project Goals
 
