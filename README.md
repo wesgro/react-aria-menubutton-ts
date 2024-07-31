@@ -1,8 +1,16 @@
-# react-aria-menubutton [![Build Status](https://github.com/davidtheclark/react-aria-menubutton/actions/workflows/build.yml/badge.svg)](https://github.com/davidtheclark/react-aria-menubutton/actions)
+# @wesgro/react-aria-menubutton-ts-ts 
+
+[![Test](https://github.com/wesgro/react-aria-menubutton-ts/actions/workflows/test.yml/badge.svg)](https://github.com/wesgro/react-aria-menubutton-ts/actions/workflows/test.yml) [![Build](https://github.com/wesgro/react-aria-menubutton-ts/actions/workflows/build.yml/badge.svg)](https://github.com/wesgro/react-aria-menubutton-ts/actions/workflows/build.yml)
+
+## This is a fork of the original project to re-write it using hooks and Typescript
+
+It strives to have an identical API but with support for React 18 and beyond
+
+## What is this?
 
 A React component (set of components, really) that will help you build accessible menu buttons by providing keyboard interactions and ARIA attributes aligned with [the WAI-ARIA Menu Button Design Pattern](http://www.w3.org/TR/wai-aria-practices/#menubutton).
 
-Please check out [the demo](https://davidtheclark.github.io/react-aria-menubutton/demo/).
+Please check out [the demo](https://wesgro.github.io/@wesgro/react-aria-menubutton-ts-ts/).
 
 ## Project Goals
 
@@ -55,28 +63,21 @@ It does not provide any classes or a stylesheet that you'll have to figure out h
 ## Installation
 
 ```
-npm install react-aria-menubutton
+pnpm install @wesgro/react-aria-menubutton-ts
 ```
 
 The modular approach of this library means you're much better off building it into your code with a module bundling system like browserify or webpack.
 
-But if you need a UMD version (which will include `focus-group` and `teeny-tap` in the bundle, but of course not `React` or `ReactDOM`), you can get it via npmcdm at `https://unpkg.com/react-aria-menubutton@[version-of-choice]/umd/ReactAriaMenuButton.js`.
-If you don't know about unpkg, [read about it here](https://unpkg.com).
-
-## Browser Support
-
-Basically IE9+.
-
 ## Usage
 
 ```js
-const AriaMenuButton = require('react-aria-menubutton');
+const AriaMenuButton = require('@wesgro/react-aria-menubutton-ts');
 
 // Now use AriaMenuButton.Wrapper, AriaMenuButton.Button,
 // AriaMenuButton.Menu, and AriaMenuButton.MenuItem ...
 
 // ... or with es2015
-import { Button, Wrapper, Menu, MenuItem } from 'react-aria-menubutton';
+import { Button, Wrapper, Menu, MenuItem } from '@wesgro/react-aria-menubutton-ts';
 ```
 
 ## Examples
@@ -89,7 +90,7 @@ You can also see more examples by looking in `demo/`.
 // Very simple ES2015 example
 
 import React from 'react';
-import { Wrapper, Button, Menu, MenuItem } from 'react-aria-menubutton';
+import { Wrapper, Button, Menu, MenuItem } from '@wesgro/react-aria-menubutton-ts';
 
 const menuItemWords = ['foo', 'bar', 'baz'];
 
@@ -136,7 +137,7 @@ function handleSelection(value, event) { .. }
 
 var React = require('react');
 var CSSTransitionGroup = require('react-transition-group/CSSTransitionGroup');
-var AriaMenuButton = require('react-aria-menubutton');
+var AriaMenuButton = require('@wesgro/react-aria-menubutton-ts');
 
 var people = [{
   name: 'Charles Choo-Choo',
@@ -377,6 +378,6 @@ These are the `closeOptions`:
 
 Please note that this project is released with a Contributor Code of Conduct. By participating in this project you agree to abide by its terms.
 
-Lint with `npm run lint`.
+Lint with `pnpm run lint`.
 
-Test with `npm run test-dev`. A browser should open; look at the console log for TAP output.
+Test with `pnpm run test-dev`. A browser should open; look at the console log for TAP output.
