@@ -103,7 +103,9 @@ export const Wrapper: React.FC<Wrapper> = ({
 
   return (
     <ManagerContext.Provider value={{ managerRef: manager }}>
-      <Tag {...props}>{children}</Tag>
+      <Tag {...props} id={id}>
+        {children}
+      </Tag>
     </ManagerContext.Provider>
   );
 };

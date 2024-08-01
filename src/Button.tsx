@@ -25,7 +25,14 @@ const AriaMenuButtonButton: React.FC<
   ButtonProps<HTMLButtonElement> & {
     forwardedRef?: React.ForwardedRef<HTMLButtonElement>;
   }
-> = ({ children, forwardedRef, tag: Tag = "button", ...props }) => {
+> = ({
+  children,
+  forwardedRef,
+  tag: Tag = "button",
+  onKeyDown,
+  onClick,
+  ...props
+}) => {
   const menuManager = useMenuManager();
   const innerRef = React.useRef<HTMLElement>();
   const [isOpen, setIsOpen] = React.useState(false);
@@ -58,6 +65,10 @@ const AriaMenuButtonButton: React.FC<
     if (props.disabled) return;
 
     const Manager = menuManager.current;
+    if (onKeyDown) {
+      onKeyDown(event);
+    }
+
     switch (event.key) {
       case "ArrowDown":
         event.preventDefault();
@@ -84,9 +95,12 @@ const AriaMenuButtonButton: React.FC<
     }
   };
 
-  const handleClick = () => {
+  const handleClick = (e) => {
     if (props.disabled) return;
     menuManager.current.toggleMenu({}, { focusMenu: false });
+    if (onClick) {
+      onClick(e);
+    }
   };
 
   const setRef = (instance: HTMLButtonElement) => {
