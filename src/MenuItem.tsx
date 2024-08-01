@@ -44,7 +44,6 @@ const AriaMenuButtonMenuItem: React.FC<
   }, [menuManagerRef, text, innerRef]);
 
   const handleKeyDown = (event: React.KeyboardEvent<HTMLDivElement>) => {
-    console.log("hey");
     if (onKeyDown) {
       onKeyDown(event);
     }
