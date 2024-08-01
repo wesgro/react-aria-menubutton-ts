@@ -15,7 +15,16 @@ const AriaMenuButtonMenuItem: React.FC<
   MenuItemProps & {
     forwardedRef?: React.ForwardedRef<HTMLDivElement>;
   }
-> = ({ children, forwardedRef, text, value, tag: Tag = "div", ...props }) => {
+> = ({
+  children,
+  forwardedRef,
+  text,
+  value,
+  tag: Tag = "div",
+  onKeyDown,
+  onClick,
+  ...props
+}) => {
   const innerRef = React.useRef<HTMLDivElement>();
   const menuManagerRef = useMenuManager();
   React.useEffect(() => {
@@ -35,22 +44,30 @@ const AriaMenuButtonMenuItem: React.FC<
   }, [menuManagerRef, text, innerRef]);
 
   const handleKeyDown = (event: React.KeyboardEvent<HTMLDivElement>) => {
+    console.log("hey");
+    if (onKeyDown) {
+      onKeyDown(event);
+    }
     if (event.key !== "Enter" && event.key !== " ") return;
     if ((event.target as HTMLAnchorElement).href) return;
     event.preventDefault();
-    selectItem(event);
-  };
-
-  const selectItem = (
-    event:
-      | React.MouseEvent<HTMLDivElement, MouseEvent>
-      | React.KeyboardEvent<HTMLDivElement>,
-  ) => {
     // If there's no value, we'll send the child
     const selectedValue = typeof value !== "undefined" ? value : children;
 
     if (menuManagerRef.current?.handleSelection) {
       menuManagerRef.current.handleSelection(selectedValue, event);
+    }
+  };
+
+  const selectItem = (event: React.MouseEvent<HTMLDivElement, MouseEvent>) => {
+    // If there's no value, we'll send the child
+    const selectedValue = typeof value !== "undefined" ? value : children;
+
+    if (menuManagerRef.current?.handleSelection) {
+      menuManagerRef.current.handleSelection(selectedValue, event);
+    }
+    if (onClick) {
+      onClick(event);
     }
   };
 
@@ -73,7 +90,7 @@ const AriaMenuButtonMenuItem: React.FC<
 
   return (
     // @ts-expect-error Complaining about HTML attributes and this isn't worth fixing correctly atm
-    <Tag {...props} {...menuItemProps}>
+    <Tag {...menuItemProps} {...props}>
       {children}
     </Tag>
   );

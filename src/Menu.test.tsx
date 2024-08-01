@@ -1,6 +1,6 @@
 import "@testing-library/jest-dom/vitest";
 import * as React from "react";
-import { test, expect } from "vitest";
+import { test, expect, vi } from "vitest";
 import { render, screen, waitFor } from "@testing-library/react";
 import { userEvent } from "@testing-library/user-event";
 
@@ -212,4 +212,88 @@ test("can close the menu imperitively", async () => {
 
   await userEvent.click(screen.getByRole("button", { name: "Close a word" }));
   expect(screen.queryByRole("menu")).not.toBeInTheDocument();
+});
+
+test("allows the user to pass their own click event to the `Button`", async () => {
+  const onClick = vi.fn();
+  render(
+    <Wrapper>
+      <Button onClick={onClick}>Select a word</Button>
+      <Menu>
+        <ul>
+          {OPTIONS.map((item) => (
+            <MenuItem key={item} text={item} value={item}>
+              {item}
+            </MenuItem>
+          ))}
+        </ul>
+      </Menu>
+    </Wrapper>,
+  );
+  const button = screen.getByRole("button", { name: "Select a word" });
+  await userEvent.click(button);
+  expect(onClick).toHaveBeenCalledTimes(1);
+});
+
+test("allows the user to pass their own keyDown event to the `Button`", async () => {
+  const onKeyDown = vi.fn();
+  render(
+    <Wrapper>
+      <Button onKeyDown={onKeyDown}>Select a word</Button>
+      <Menu>
+        <ul>
+          {OPTIONS.map((item) => (
+            <MenuItem key={item} text={item} value={item}>
+              {item}
+            </MenuItem>
+          ))}
+        </ul>
+      </Menu>
+    </Wrapper>,
+  );
+  const button = screen.getByRole("button", { name: "Select a word" });
+  await userEvent.type(button, "{arrowdown}");
+  expect(onKeyDown).toHaveBeenCalledTimes(1);
+});
+
+test("allows the user to pass their own click event to the `MenuItem`", async () => {
+  const onClick = vi.fn();
+  render(
+    <Wrapper>
+      <Button>Select a word</Button>
+      <Menu>
+        <ul>
+          {OPTIONS.map((item) => (
+            <MenuItem key={item} text={item} value={item} onClick={onClick}>
+              {item}
+            </MenuItem>
+          ))}
+        </ul>
+      </Menu>
+    </Wrapper>,
+  );
+  const button = screen.getByRole("button", { name: "Select a word" });
+  await userEvent.click(button);
+  expect(screen.getByRole("menu")).toBeInTheDocument();
+  const menuItem = screen.getByText("banana");
+  await userEvent.click(menuItem);
+  expect(onClick).toHaveBeenCalledTimes(1);
+});
+
+test("allows the user to pass an `id` to the `wrapper` and that `id` is rendered in the DOM", async () => {
+  render(
+    <Wrapper id="foo" data-testid="wrapper">
+      <Button>Select a word</Button>
+      <Menu>
+        <ul>
+          {OPTIONS.map((item) => (
+            <MenuItem key={item} text={item} value={item}>
+              {item}
+            </MenuItem>
+          ))}
+        </ul>
+      </Menu>
+    </Wrapper>,
+  );
+  expect(screen.getByTestId("wrapper")).toHaveAttribute("id", "foo");
 });
