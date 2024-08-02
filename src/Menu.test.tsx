@@ -297,3 +297,35 @@ test("allows the user to pass an `id` to the `wrapper` and that `id` is rendered
   );
   expect(screen.getByTestId("wrapper")).toHaveAttribute("id", "foo");
 });
+
+test("it should not render a menu if the menu is not open", async () => {
+  render(
+    <Wrapper>
+      <Button>Select a word</Button>
+      <Menu role="menu">
+        <ul>
+          {OPTIONS.map((item) => (
+            <MenuItem key={item} text={item} value={item}>
+              {item}
+            </MenuItem>
+          ))}
+        </ul>
+      </Menu>
+    </Wrapper>,
+  );
+  expect(screen.queryByRole("menu")).not.toBeInTheDocument();
+});
+
+test("when the menu opens the button should be aria-expanded=true", async () => {
+  render(<Stage />);
+  expect(screen.getByRole("button", { name: "Select a word" })).toHaveAttribute(
+    "aria-expanded",
+    "false",
+  );
+  const button = screen.getByRole("button", { name: "Select a word" });
+  await userEvent.click(button);
+  expect(screen.getByRole("button", { name: "Select a word" })).toHaveAttribute(
+    "aria-expanded",
+    "true",
+  );
+});

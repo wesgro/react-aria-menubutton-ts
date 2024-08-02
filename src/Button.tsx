@@ -38,24 +38,24 @@ const AriaMenuButtonButton: React.FC<
   const [isOpen, setIsOpen] = React.useState(false);
   React.useEffect(() => {
     const managerRef = menuManager.current;
-    if (innerRef.current) {
-      managerRef.button = {
-        element: innerRef.current,
-        functions: {
-          focus: () => {
-            innerRef.current?.focus();
-          },
-          setState: (state) => {
-            flushSync(() => {
-              if (managerRef) {
-                managerRef.isOpen = state.menuOpen;
-                setIsOpen(state.menuOpen);
-              }
-            });
-          },
+
+    managerRef.button = {
+      element: innerRef.current,
+      functions: {
+        focus: () => {
+          innerRef.current?.focus();
         },
-      };
-    }
+        setState: (state) => {
+          flushSync(() => {
+            if (managerRef) {
+              managerRef.isOpen = state.menuOpen;
+              setIsOpen(state.menuOpen);
+            }
+          });
+        },
+      },
+    };
+
     return () => {
       managerRef.destroy();
     };

@@ -127,13 +127,14 @@ class Manager implements ManagerInterface {
   }
 
   public update() {
-    this.menu?.functions.setState({ isOpen: this.isOpen });
-    this.button?.functions.setState({ menuOpen: this.isOpen });
-    this.options.onMenuToggle?.({ isOpen: this.isOpen });
+    this.menu?.functions.setState({ isOpen: this._isOpen });
+    this.button?.functions.setState({ menuOpen: this._isOpen });
+    this.options.onMenuToggle?.({ isOpen: this._isOpen });
   }
 
   public openMenu(openOptions?: { focusMenu?: boolean }) {
-    if (this.isOpen) return;
+    if (this._isOpen) return;
+
     openOptions = openOptions || {};
     if (openOptions.focusMenu === undefined) {
       openOptions.focusMenu = true;
