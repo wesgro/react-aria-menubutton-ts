@@ -25,11 +25,7 @@ const AriaMenuButtonMenu: React.FC<
   const listenerCleanupRef = React.useRef<() => void | undefined>();
 
   React.useEffect(() => {
-    if (!el) {
-      return;
-    }
     const Manager = menuManagerRef.current;
-
     Manager.menu = {
       element: el,
       functions: {
@@ -100,6 +96,9 @@ const AriaMenuButtonMenu: React.FC<
     [forwardedRef, setEl],
   );
 
+  if (menuManagerRef.current.isOpen === false) {
+    return;
+  }
   return (
     <Tag
       role={isOpen ? "menu" : "presentation"}
